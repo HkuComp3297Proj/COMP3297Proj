@@ -6,7 +6,7 @@ from category.models import Category
 from user.models import Instructor
 
 def validate_not_blank(description):
-    if description == []:
+    if description == "":
         description = "This course has no description."
 
 #TODO: add a unique validator for course name instead of set the name as unique in case there are courses in different category which have the same name. Same for module, component. To make it a static validator, it will be better in the webpage as a javascript function. Or, make it a validator with category as a parameter passed in. Or, before save, raise a validator error if the name is not unique in this category. The third solution is the simplest.

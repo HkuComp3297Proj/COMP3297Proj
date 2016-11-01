@@ -12,7 +12,10 @@ def index(request, category):
         return HttpResponse("Sorry! There is no category called " + category + ".")
 
 def view(request, category, identity, user_ID):
-    return HttpResponse("This is the category " + category + " page for user " + user_ID + " as a " + identity)
+    if len(Category.objects.filter(name=category))!=0:
+        return HttpResponse("This is the category " + category + " page for user " + user_ID + " as a " + identity)
+    else:
+        return HttpResponse("Sorry! There is no category called " + category + ".")
 
 def create(request, category, user_ID):
     return HttpResponse("This is the create course page for user " + user_ID + " in category " + category)

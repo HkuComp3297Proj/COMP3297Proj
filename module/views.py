@@ -12,7 +12,10 @@ def index(request, category, course, module):
         return HttpResponse("Sorry! There is no module called " + module + ".")
 
 def view(request, category, course, module, identity, user_ID):
-    return HttpResponse("This is the module " + module + " page for user " + user_ID + " as a " + identity)
+    if len(Module.objects.filter(name=module))!=0:
+        return HttpResponse("This is the module " + module + " page for user " + user_ID + " as a " + identity)
+    else:
+        return HttpResponse("Sorry! There is no module called " + module + ".")
 
 def create(request, category, course, module, user_ID):
     return HttpResponse("This is the create component page for user " + user_ID + " in module " + module)
