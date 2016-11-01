@@ -1,3 +1,6 @@
 # COMP3297Proj  
 
-URLconf:
+URL configration:
+URL  | view functions
+:--|:--
+admin | default admin view functions
