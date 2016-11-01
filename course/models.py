@@ -23,7 +23,7 @@ class Course(models.Model):
     def __str__(self):
         return self.name
 
-    def create_module(self, name):
+    def create_module(self, name, sequence):
         pass
 
     def delete_module(self, sequence):

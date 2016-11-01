@@ -16,7 +16,7 @@ class Module(models.Model):
     def __str__(self):
         return self.name
 
-    def create_component(self, name):
+    def create_component(self, name, sequence):
         pass
 
     def delete_component(self, sequence):
