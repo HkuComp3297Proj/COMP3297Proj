@@ -15,9 +15,11 @@ Including another URLconf
 """
 from django.conf.urls import include, url
 from django.contrib import admin
+from .views import view_index
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
+    url(r'^index/(?P<identity>Participant|Instructor)/(?P<username>[A-Za-z\d_\s]+)', view_index, name='view_index'),
     url(r'^(?P<category>[A-Za-z\d_\s]+)/', include('category.urls')),
 
 ]

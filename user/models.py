@@ -16,6 +16,16 @@ class User(models.Model):
     def change_Identity(self, identity, set_value):
         pass
 
+    def get_identity_list(self):
+        identity_list = ["Participant"]
+        if self.identity_instructor:
+            identity_list.append("Instructor")
+        if self.identity_admin:
+            identity_list.append("Administrator")
+        if self.identity_hr:
+            identity_list.append("HR")
+        return identity_list
+
 class Particiapnt(User):
     class Meta:
         proxy = True

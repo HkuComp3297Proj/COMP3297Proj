@@ -11,11 +11,11 @@ def index(request, category, course):
     else:
         return HttpResponse("Sorry! There is no course called " + course + ".")
 
-def view(request, category, course, identity, user_ID):
+def view(request, category, course, identity, username):
     if len(Course.objects.filter(name=course))!=0:
-        return HttpResponse("This is the course " + course + " page for user " + user_ID + " as a " + identity)
+        return HttpResponse("This is the course " + course + " page for user " + username + " as a " + identity)
     else:
         return HttpResponse("Sorry! There is no course called " + course + ".")
 
-def create(request, category, course, user_ID):
-    return HttpResponse("This is the create module page for user " + user_ID + " in course " + course)
+def create(request, category, course, username):
+    return HttpResponse("This is the create module page for user " + username + " in course " + course)
