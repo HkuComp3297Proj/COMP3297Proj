@@ -1,0 +1,270 @@
+from django.db import models
+from itertools import chain
+# Create your models here.
+
+class User(models.Model):
+    username = models.CharField(max_length=8, unique=True)
+    password = models.CharField(max_length=200)
+    identity_instructor = models.BooleanField(default=False)
+    identity_admin = models.BooleanField(default=False)
+    identity_hr = models.BooleanField(default=False)
+    current_enrollment = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.username
+
+    def change_Identity(self, identity, set_value):
+        pass
+
+    def get_identity_list(self):
+        identity_list = ["Participant"]
+        if self.identity_instructor:
+            identity_list.append("Instructor")
+        if self.identity_admin:
+            identity_list.append("Administrator")
+        if self.identity_hr:
+            identity_list.append("HR")
+        return identity_list
+
+class Participant(User):
+    class Meta:
+        proxy = True
+
+    def is_enrolled(self):
+        return self.current_enrollment
+
+    def enroll(self, course):
+        if self.is_enrolled():
+            return
+        this_course = Course.objects.filter(name=course)[0]
+        enrollment = Enrollment(participant=self, course=this_course, module_progress=0, component_progress=0)
+        self.current_enrollment = True
+        enrollment.save()
+        self.save()
+
+    def drop(self, course):
+        this_course = Course.objects.filter(name=course)[0]
+        enrollment = self.enrollment_set.filter(course=this_course)[0]
+        enrollment.delete()
+        self.current_enrollment = False
+        self.save()
+
+class Instructor(User):
+    class Meta:
+        proxy = True
+
+    @classmethod
+    def get_Instructor(cls):
+        return Instructor.objects.filter(identity_instructor=True)
+
+class Administrator(User):
+    class Meta:
+        proxy = True
+
+    @classmethod
+    def get_Administrator(cls):
+        return Administrator.objects.filter(identity_administrator=True)
+
+    def create_category(self, name):
+        pass
+
+class HR(User):
+    class Meta:
+        proxy = True
+
+    @classmethod
+    def get_HR(cls):
+        return HR.objects.filter(identity_hr=True)
+
+class Category(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    # number_of_course = models.PositiveIntegerField(default=0, editable=False)
+    number_of_course = models.PositiveIntegerField(default=0)
+
+    def __str__(self):
+        return self.name
+
+    @classmethod
+    def create_course(cls, name, category, instructor, description):
+        course = Course(name=name, category=Category.objects.filter(name=category)[0], number_of_module=0, instructor=Instructor.get_Instructor().filter(username=instructor)[0], opened=False, description=description)
+        course.save()
+
+
+class Course(models.Model):
+    name = models.CharField(max_length=100)
+    # number_of_module = models.PositiveIntegerField(default=0, editable=False)
+    number_of_module = models.PositiveIntegerField(default=0)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    instructor = models.ForeignKey(Instructor, on_delete=models.CASCADE)
+    opened = models.BooleanField(default=False)
+    description = models.TextField(default="This course has no description.")
+
+    # @classmethod
+    # def create(cls, name, category, instructor, description):
+    #     course = cls(name=name, category=category, number_of_module=0, instructor=instructor, opened=False, description=description)
+    #     return course
+
+    def __str__(self):
+        return self.name
+
+    @classmethod
+    def create_module(cls, name, course, sequence):
+        this_course = Course.objects.filter(name=course)[0]
+        module = Module(name=name, number_of_component=0, course=this_course, sequence=this_course.number_of_module)
+        module.save()
+        module.insert_module(sequence)
+
+    def open(self):
+        self.opened = True;
+
+
+class Module(models.Model):
+    name = models.CharField(max_length=100)
+    # number_of_component = models.PositiveIntegerField(default=0, editable=False)
+    number_of_component = models.PositiveIntegerField(default=0)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    sequence = models.PositiveIntegerField()
+
+    class Meta:
+        ordering = ['sequence']
+
+    def __str__(self):
+        return self.name
+
+    @classmethod
+    def create_text_component(self, name, module, sequence, text_field):
+        this_module = Module.objects.filter(name=module)[0]
+        component = Component_Text(name=name, module=this_module, sequence=this_module.number_of_component, text_field=text_field)
+        component.save()
+        component.insert_component(sequence)
+
+    @classmethod
+    def create_image_component(self, name, module, sequence, image_field):
+        this_module = Module.objects.filter(name=module)[0]
+        component = Component_Image(name=name, module=this_module, sequence=this_module.number_of_component, image_field=image_field)
+        component.save()
+        component.insert_component(sequence)
+
+    @classmethod
+    def create_file_component(self, name, module, sequence, file_field):
+        this_module = Module.objects.filter(name=module)[0]
+        component = Component_File(name=name, module=this_module, sequence=this_module.number_of_component, file_field=file_field)
+        component.save()
+        component.insert_component(sequence)
+
+    def modify_module(self, sequence, new_name):
+        self.name = new_name
+        self.insert_module(sequence)
+        pass
+
+    def insert_module(self, future_seq):
+        if future_seq==self.sequence:
+            self.save()
+            return
+        past_seq = self.sequence
+        self.sequence = future_seq
+        for s in self.course.module_set.all():
+            if s!=self and s.sequence>=min(past_seq, future_seq) and s.sequence<=max(past_seq, future_seq):
+                if past_seq<future_seq:
+                    s.sequence-=1
+                elif past_seq>future_seq:
+                    s.sequence+=1
+                s.save()
+        self.save()
+
+    def save(self, *args, **kwargs):
+        super(Module, self).save(*args, **kwargs)
+        course = self.course
+        course.number_of_module = course.module_set.count()
+        course.save()
+
+    def delete(self):
+        for module in self.course.module_set.all():
+            if module.sequence > self.sequence:
+                module.sequence -= 1
+                module.save()
+        super(Module, self).delete()
+
+
+class Component(models.Model):
+    TEXT = 'T'
+    FILE = 'F'
+    IMAGE = 'I'
+    COMPONENT_TYPE_CHOICES = (
+        (TEXT, 'Text'),
+        (FILE, 'File'),
+        (IMAGE, 'Image'),
+    )
+
+    name = models.CharField(max_length=100)
+    module = models.ForeignKey(Module, on_delete=models.CASCADE)
+    sequence = models.PositiveIntegerField()
+    component_type = models.CharField(
+        max_length=1,
+        choices=COMPONENT_TYPE_CHOICES,
+        default=TEXT,
+    )
+    class Meta:
+        abstract = True
+
+    def __str__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):
+        super(Component, self).save(*args, **kwargs)
+        module = self.module
+        module.number_of_component = module.component_file_set.count() + module.component_text_set.count() + module.component_image_set.count()
+        module.save()
+
+    def delete(self):
+        all_component_list = list(chain(self.module.component_text_set.all(), self.module.component_image_set.all(), self.module.component_file_set.all()))
+        for component in all_component_list:
+            if component.sequence > self.sequence:
+                component.sequence -= 1
+                component.save()
+        super(Component, self).delete()
+
+    def insert_component(self, future_seq):
+        if future_seq==self.sequence:
+            self.save()
+            return
+        past_seq = self.sequence
+        self.sequence = future_seq
+        all_component_list = list(chain(self.module.component_text_set.all(), self.module.component_image_set.all(), self.module.component_file_set.all()))
+        for s in all_component_list:
+            if s!=self and s.sequence >= min(past_seq, future_seq) and s.sequence<=max(past_seq, future_seq):
+                if past_seq < future_seq:
+                    s.sequence-=1
+                elif past_seq > future_seq:
+                    s.sequence+=1
+                s.save()
+        self.save()
+        pass
+
+class Component_Text(Component):
+    text_field = models.TextField()
+
+    def save(self, *args, **kwargs):
+        self.component_type = self.TEXT
+        super(Component_Text, self).save(*args, **kwargs)
+
+class Component_Image(Component):
+    image_field = models.ImageField()
+
+    def save(self, *args, **kwargs):
+        self.component_type = self.IMAGE
+        super(Component_Image, self).save(*args, **kwargs)
+
+class Component_File(Component):
+    file_field = models.FileField()
+
+    def save(self, *args, **kwargs):
+        self.component_type = self.FILE
+        super(Component_File, self).save(*args, **kwargs)
+
+class Enrollment(models.Model):
+    participant = models.ForeignKey(Participant, on_delete=models.CASCADE)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    completion_date = models.DateField(null=True)
+    module_progress = models.IntegerField(default=0)
+    component_progress = models.IntegerField(default=0)

@@ -3,8 +3,7 @@ from django.shortcuts import render
 # Create your views here.
 
 from django.http import HttpResponse
-from category.models import Category
-from user.models import User
+from sdp.models import Category, User
 
 def view_index(request, identity, username):
     this_user = User.objects.filter(username=username)
