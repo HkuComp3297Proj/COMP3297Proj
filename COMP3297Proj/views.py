@@ -14,7 +14,6 @@ def view_index(request, identity, username):    #need to handle HR and Administr
         category_list = (c.name for c in Category.objects.all())
         identity_list = this_user[0].get_identity_list()
         identity_list.remove(identity)
-        Course.objects.
         arguments = {
         'category_list': category_list,
         'identity': identity,
