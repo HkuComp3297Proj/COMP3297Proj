@@ -22,7 +22,7 @@ urlpatterns = [
     url(r'^login/', userlogin, name='login'),
     url(r'^logout/', userlogout, name='logout'),
     url(r'^register/', register, name='register'),
-    url(r'^index/(?P<identity>Participant|Instructor)/(?P<username>[A-Za-z\d_\s]+)', view_index, name='view_index'),
+    url(r'^index/(?P<identity>Participant|Instructor|HR|Administrator)/(?P<username>[A-Za-z\d_\s]+)', view_index, name='view_index'),
     url(r'^(?P<category>[A-Za-z\d_\s]+)/', include('sdp.category_urls')),
 
 ]
