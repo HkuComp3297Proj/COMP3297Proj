@@ -15,10 +15,13 @@ Including another URLconf
 """
 from django.conf.urls import include, url
 from django.contrib import admin
-from .views import view_index
+from .views import view_index, userlogin,register, userlogout
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
+    url(r'^login/', userlogin, name='login'),
+    url(r'^logout/', userlogout, name='logout'),
+    url(r'^register/', register, name='register'),
     url(r'^index/(?P<identity>Participant|Instructor)/(?P<username>[A-Za-z\d_\s]+)', view_index, name='view_index'),
     url(r'^(?P<category>[A-Za-z\d_\s]+)/', include('sdp.category_urls')),
 
