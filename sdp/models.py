@@ -1,8 +1,9 @@
 from django.db import models
 from itertools import chain
+from django.contrib.auth.models import AbstractUser
 # Create your models here.
 
-class User(models.Model):
+class User(AbstractUser):
     username = models.CharField(max_length=8, unique=True)
     password = models.CharField(max_length=200)
     identity_instructor = models.BooleanField(default=False)

@@ -55,7 +55,7 @@ ROOT_URLCONF = 'COMP3297Proj.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')]
+        'DIRS': [os.path.join(BASE_DIR, 'COMP3297Proj/templates')]
         ,
         'APP_DIRS': True,
         'OPTIONS': {
@@ -122,3 +122,5 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATIC_URL = '/static/'
+
+AUTH_USER_MODEL = 'sdp.User'

@@ -19,6 +19,7 @@ def view_course(request, category, course, identity, username):
         'category': category,
         'category_list': category_list,
         'course': course,
+        'instructor':this_course[0].instructor.username,
         'module_list': module_list,
         'identity': identity,
         'identity_list': identity_list,
@@ -40,7 +41,7 @@ def view_course(request, category, course, identity, username):
             else:
                 return render(request, 'course/participant_view.html', arguments)
         elif identity == "Instructor":
-            return render(request, 'course/instructor_view.html', arguments)
+            return render(request, 'course/instructor_view.html', arguments) #Different views for instructor of the course and other instructors 
     else:
         return HttpResponse("Sorry! There is no course called " + course + ".")
 
