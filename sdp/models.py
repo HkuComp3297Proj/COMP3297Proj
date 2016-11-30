@@ -13,8 +13,28 @@ class User(models.Model):
     def __str__(self):
         return self.username
 
-    def change_Identity(self, identity, set_value):
-        pass
+    '''
+    Created by Charlie Chen
+    This is the interface for change the user's identity
+    set_value: a list of identity of change requested by some administrator.
+    '''
+    def change_identity(self, set_value):
+        if "Instructor" in set_value:
+            self.identity_instructor = True
+        else:
+            self.identity_instructor = False
+
+        if "Administrator" in set_value:
+            self.identity_admin = True
+        else:
+            self.identity_admin = False
+
+        if "HR" in set_value:
+            self.identity_hr = True
+        else:
+            self.identity_hr = False
+
+        self.save()
 
     def get_identity_list(self):
         identity_list = ["Participant"]
