@@ -3,7 +3,7 @@ from django.shortcuts import render
 # Create your views here.
 
 from django.http import HttpResponse
-from sdp.models import Category, User
+from sdp.models import Category, User, Course
 
 def view_index(request, identity, username):
     this_user = User.objects.filter(username=username)
@@ -12,6 +12,7 @@ def view_index(request, identity, username):
         category_list = (c.name for c in Category.objects.all())
         identity_list = this_user[0].get_identity_list()
         identity_list.remove(identity)
+        Course.objects.
         arguments = {
         'category_list': category_list,
         'identity': identity,

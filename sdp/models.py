@@ -23,18 +23,16 @@ class User(models.Model):
             self.identity_instructor = True
         else:
             self.identity_instructor = False
-
         if "Administrator" in set_value:
             self.identity_admin = True
         else:
             self.identity_admin = False
-
         if "HR" in set_value:
             self.identity_hr = True
         else:
             self.identity_hr = False
-
         self.save()
+
 
     def get_identity_list(self):
         identity_list = ["Participant"]
@@ -77,6 +75,12 @@ class Instructor(User):
     def get_Instructor(cls):
         return Instructor.objects.filter(identity_instructor=True)
 
+    '''
+    created by Charlie Chen
+    '''
+    def get_courses_instructed(self):
+        pass
+
 class Administrator(User):
     class Meta:
         proxy = True
@@ -85,8 +89,13 @@ class Administrator(User):
     def get_Administrator(cls):
         return Administrator.objects.filter(identity_administrator=True)
 
+    '''
+    Modified by Charlie Chen
+    '''
+    @classmethod
     def create_category(self, name):
-        pass
+        category = Category(name=name)
+        category.save()
 
 class HR(User):
     class Meta:
