@@ -5,7 +5,7 @@ from django.contrib.auth import authenticate, login, logout
 # Create your views here.
 
 from django.http import HttpResponse
-from sdp.models import Category, User
+from sdp.models import Category, User, Course
 
 def view_index(request, identity, username):    #need to handle HR and Administrator as well 
     this_user = User.objects.filter(username=username)
@@ -14,6 +14,7 @@ def view_index(request, identity, username):    #need to handle HR and Administr
         category_list = (c.name for c in Category.objects.all())
         identity_list = this_user[0].get_identity_list()
         identity_list.remove(identity)
+        Course.objects.
         arguments = {
         'category_list': category_list,
         'identity': identity,
