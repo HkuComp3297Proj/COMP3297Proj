@@ -7,7 +7,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponse
 from sdp.models import Category, User, Course
 
-def view_index(request, identity, username):    #need to handle HR and Administrator as well 
+def view_index(request, identity, username):    #need to handle HR and Administrator as well
     this_user = User.objects.filter(username=username)
     if len(this_user)!=0:
         #return HttpResponse("OKay! " + username + " " + identity)
@@ -19,6 +19,7 @@ def view_index(request, identity, username):    #need to handle HR and Administr
         'identity': identity,
         'identity_list': identity_list,
         'username': username}
+        print(arguments)
         return render(request, 'index/view.html', arguments)
     else:
         return HttpResponse("Sorry! " + username + " " + identity)
@@ -53,9 +54,11 @@ def userlogin(request):
                 'identity': identity,
                 'identity_list': identity_list,
                 'username': form['username'].data}
-                print(form['username'].data + "Login!")
+                print(form['username'].data + " Login! " + "He is a " + identity)
                 #return render(request, 'index/view.html', arguments)
-                return redirect('view_index', identity=identity,username=form['username'].data) #need to be completed 
+
+                return redirect('view_index', identity=identity, username=form['username'].data) #need to be completed
+                #return HttpResponse(identity)
             else:
                 return HttpResponse("Error login message") #Return error login message 
         else:
