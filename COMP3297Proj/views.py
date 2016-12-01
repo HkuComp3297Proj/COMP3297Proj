@@ -10,17 +10,38 @@ from sdp.models import Category, User, Course
 def view_index(request, identity, username):    #need to handle HR and Administrator as well
     this_user = User.objects.filter(username=username)
     if len(this_user)!=0:
-        #return HttpResponse("OKay! " + username + " " + identity)
-        category_list = (c.name for c in Category.objects.all())
-        identity_list = this_user[0].get_identity_list()
-        identity_list.remove(identity)
-        arguments = {
-        'category_list': category_list,
-        'identity': identity,
-        'identity_list': identity_list,
-        'username': username}
-        print(arguments)
-        return render(request, 'index/view.html', arguments)
+        if identity == "Instructor":
+            #return HttpResponse("OKay! " + username + " " + identity)
+            course_list = Course.objects.all()
+            ins_cour_list = [co for co in course_list  if co.instructor.username == username]
+            category_list = (c.name for c in Category.objects.all())
+            identity_list = this_user[0].get_identity_list()
+            identity_list.remove(identity)
+            arguments = {
+            'category_list': category_list,
+            'identity': identity,
+            'identity_list': identity_list,
+            'username': username,
+            'course_list': ins_cour_list}
+            print(arguments)
+            return render(request, 'index/instructor.html', arguments)
+        elif identity == "Administrator":
+            return HttpResponse(identity)
+        elif identity == "HR":
+            return HttpResponse(identity)
+        else:
+            # return HttpResponse("OKay! " + username + " " + identity)
+            category_list = (c.name for c in Category.objects.all())
+            identity_list = this_user[0].get_identity_list()
+            identity_list.remove(identity)
+            arguments = {
+                'category_list': category_list,
+                'identity': identity,
+                'identity_list': identity_list,
+                'username': username}
+            print(arguments)
+            return render(request, 'index/view.html', arguments)
+
     else:
         return HttpResponse("Sorry! " + username + " " + identity)
 
