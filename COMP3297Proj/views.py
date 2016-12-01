@@ -60,8 +60,8 @@ def view_index(request, identity, username):    #need to handle HR and Administr
                 'identity_list': identity_list,
                 'username': username}
 
-            if Participant.current_enrollment:
-                course = [e.course for e in Enrollment.objects.filter(participant=this_user[0])]
+            course = [e.course for e in Enrollment.objects.filter(participant=this_user[0])]
+            if len(course) > 0:
                 course = course[0]
                 category = course.category
                 return redirect('view_course', category=category, course=course, identity=identity, username=username)
