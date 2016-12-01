@@ -51,15 +51,22 @@ def view_index(request, identity, username):    #need to handle HR and Administr
         else:
             # return HttpResponse("OKay! " + username + " " + identity)
             category_list = (c.name for c in Category.objects.all())
-            identity_list = this_user[0].get_identity_list()
+            participant = Participant.objects.filter(username=username)
+            identity_list = participant[0].get_identity_list()
             identity_list.remove(identity)
             arguments = {
                 'category_list': category_list,
                 'identity': identity,
                 'identity_list': identity_list,
                 'username': username}
-            return render(request, 'index/view.html', arguments)
 
+            if Participant.current_enrollment:
+                course = [e.course for e in Enrollment.objects.filter(participant=this_user[0])]
+                course = course[0]
+                category = course.category
+                return redirect('view_course', category=category, course=course, identity=identity, username=username)
+            else:
+                return render(request, 'index/participant.html', arguments)
     else:
         return HttpResponse("Sorry! " + username + " " + identity)
 
@@ -96,7 +103,7 @@ def userlogin(request):
                 print(form['username'].data + " Login! " + "He is a " + identity)
                 #return render(request, 'index/view.html', arguments)
 
-                return redirect('view_index', identity=identity, username=form['username'].data) #need to be completed
+                return redirect('view_course', identity=identity, username=form['username'].data) #need to be completed
                 #return HttpResponse(identity)
             else:
                 return HttpResponse("Error login message") #Return error login message 
