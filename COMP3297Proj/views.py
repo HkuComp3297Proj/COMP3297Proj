@@ -5,7 +5,7 @@ from django.contrib.auth import authenticate, login, logout
 # Create your views here.
 
 from django.http import HttpResponse
-from sdp.models import Category, User, Course
+from sdp.models import Category, User, Course, Participant, Enrollment
 
 def view_index(request, identity, username):    #need to handle HR and Administrator as well
     this_user = User.objects.filter(username=username)
@@ -23,12 +23,31 @@ def view_index(request, identity, username):    #need to handle HR and Administr
             'identity_list': identity_list,
             'username': username,
             'course_list': ins_cour_list}
-            print(arguments)
             return render(request, 'index/instructor.html', arguments)
+
         elif identity == "Administrator":
-            return HttpResponse(identity)
+            identity_list = this_user[0].get_identity_list()
+            user_list = User.objects.all()
+            identity_list.remove(identity)
+            arguments = {
+                'identity': identity,
+                'identity_list': identity_list,
+                'username': username,
+                'user_list': user_list
+            }
+            return render(request, 'index/admin.html', arguments)
+
         elif identity == "HR":
-            return HttpResponse(identity)
+            identity_list = this_user[0].get_identity_list()
+            user_list = User.objects.all()
+            identity_list.remove(identity)
+            arguments = {
+                'identity': identity,
+                'identity_list': identity_list,
+                'username': username,
+                'user_list': user_list
+            }
+            return render(request, 'index/hr.html', arguments)
         else:
             # return HttpResponse("OKay! " + username + " " + identity)
             category_list = (c.name for c in Category.objects.all())
@@ -39,8 +58,11 @@ def view_index(request, identity, username):    #need to handle HR and Administr
                 'identity': identity,
                 'identity_list': identity_list,
                 'username': username}
-            print(arguments)
-            return render(request, 'index/view.html', arguments)
+            if Participant(this_user[0]).is_enrolled:
+                course = [e.course for e in Enrollment.objects.filter(participant = this_user[0])]
+                course = course[0]
+                category = course.category
+            return redirect('view_course', category=category, course=course, identity=identity, username=username)
 
     else:
         return HttpResponse("Sorry! " + username + " " + identity)
