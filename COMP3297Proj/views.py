@@ -58,11 +58,7 @@ def view_index(request, identity, username):    #need to handle HR and Administr
                 'identity': identity,
                 'identity_list': identity_list,
                 'username': username}
-            if Participant(this_user[0]).is_enrolled:
-                course = [e.course for e in Enrollment.objects.filter(participant = this_user[0])]
-                course = course[0]
-                category = course.category
-            return redirect('view_course', category=category, course=course, identity=identity, username=username)
+            return render(request, 'index/view.html', arguments)
 
     else:
         return HttpResponse("Sorry! " + username + " " + identity)
