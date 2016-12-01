@@ -7,7 +7,7 @@ from django import forms
 class Login_form(AuthenticationForm):
     username = forms.CharField(label="Username", max_length=30)
     password = forms.CharField(label="Password", max_length=30, widget=forms.PasswordInput)
-    identity = forms.ChoiceField(label = "Identity", choices=[("Participant","Participant") ,("Instructor","Instructor"),("HR","HR")], widget=forms.Select)
+    identity = forms.ChoiceField(label = "Identity", choices=[("Participant", "Participant"), ("Instructor", "Instructor"), ("HR", "HR"), ("Administrator", "Administrator")], widget=forms.Select)
 
 class Register_form(forms.ModelForm):
 	username = forms.CharField(label="Username", max_length=30, widget=forms.TextInput(attrs={'class': 'form-control', 'name': 'username'}))
