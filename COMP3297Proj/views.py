@@ -1,16 +1,17 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, render_to_response
 from .forms import Register_form, Login_form
-from django.contrib.auth import authenticate, login, logout 
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required  
 
 # Create your views here.
 
 from django.http import HttpResponse
 from sdp.models import Category, User, Course
 
-def view_index(request, identity, username):    #need to handle HR and Administrator as well
+
+def view_index(request, identity, username):    #need to handle HR and Administrator as well -- different views? 
     this_user = User.objects.filter(username=username)
     if len(this_user)!=0:
-        #return HttpResponse("OKay! " + username + " " + identity)
         category_list = (c.name for c in Category.objects.all())
         identity_list = this_user[0].get_identity_list()
         identity_list.remove(identity)
@@ -19,8 +20,7 @@ def view_index(request, identity, username):    #need to handle HR and Administr
         'identity': identity,
         'identity_list': identity_list,
         'username': username}
-        print(arguments)
-        return render(request, 'index/view.html', arguments)
+        return render(request, 'index/view.html', arguments) #Need to create a homepage 
     else:
         return HttpResponse("Sorry! " + username + " " + identity)
 
@@ -28,10 +28,15 @@ def register(request):
     if request.method == 'POST':
         form = Register_form(request.POST)
         if form.is_valid():
-            form.save()
-            return HttpResponse("Register success") #Redirect to index page 
+            if User.objects.filter(username=form['username'].data).exists():
+                return render_to_response('index/register.html', {"message":"User name already exists!", 'form':form}) #Modify
+            else:
+                form.save() #Error: no argument 'message' passed 
+                return redirect('login')    #Need to add registration success message
         else:
-            return HttpResponse("Error") #Invalid form (various reason)
+            print (form.errors)
+            print (form.non_field_errors)
+            return HttpResponse("Errors") #Invalid form (various reason)
     else:
         form = Register_form()
         return render(request, 'index/register.html', {'form':form})
@@ -57,7 +62,7 @@ def userlogin(request):
                 print(form['username'].data + " Login! " + "He is a " + identity)
                 #return render(request, 'index/view.html', arguments)
 
-                return redirect('view_index', identity=identity, username=form['username'].data) #need to be completed
+                return redirect('view_index', identity=identity, username=form['username'].data)
                 #return HttpResponse(identity)
             else:
                 return HttpResponse("Error login message") #Return error login message 
