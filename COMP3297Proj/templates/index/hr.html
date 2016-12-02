@@ -95,13 +95,13 @@
                 </tr>
               </thead>
               <tbody>
-                {% for user in user_list %}
+                {% for enroll_info in enroll_info_list %}
                     <tr>
-                    <td>{{ user.username }}</td>
-                    <td>{{ user.identity_instructor }}</td>
-                    <td>{{ user.identity_admin }}</td>
-                    <td>{{ user.identity_hr }}</td>
-                    <td>{{ user.current_enrollment }}</td>
+                    <td>{{ enroll_info.0.username }}</td>
+                    <td>{{ enroll_info.0.identity_instructor }}</td>
+                    <td>{{ enroll_info.0.identity_admin }}</td>
+                    <td>{{ enroll_info.0.identity_hr }}</td>
+                    <td>{{ enroll_info.1 }} </td>
                     <td><button type="button" class="btn btn-success">Access</button></td>
                     </tr>
                 {% endfor %}
