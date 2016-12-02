@@ -104,9 +104,9 @@
                     <td>{{ user.current_enrollment }}</td>
                     <td>
                         {% if user.identity_instructor %}
-                        <button type="button" class="btn btn-danger">Resign</button>
+                        <a href="{% url 'view_index' identity=identity username=username %}?this_user={{ user.username }}"><button type="button"  class="btn btn-danger">Resign</button></a>
                         {% else %}
-                        <button type="button" class="btn btn-success">Designate</button>
+                        <a href="{% url 'view_index' identity=identity username=username %}?this_user={{ user.username }}"><button type="button" class="btn btn-success">Designate</button></a>
                         {% endif %}
                     </td>
                     </tr>
