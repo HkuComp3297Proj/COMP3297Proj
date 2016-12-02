@@ -39,13 +39,21 @@ def view_index(request, identity, username):    #need to handle HR and Administr
 
         elif identity == "HR":
             identity_list = this_user[0].get_identity_list()
-            user_list = User.objects.all()
             identity_list.remove(identity)
+            course_list = []
+            participant_list = Participant.objects.all()
+            for participant in participant_list:
+                e = Enrollment.objects.filter(participant=participant)
+                if len(e) > 0:
+                    course_list.append(e[0].course)
+                else:
+                    course_list.append(None)
+            enroll_info_list = zip(participant_list, course_list)
             arguments = {
                 'identity': identity,
                 'identity_list': identity_list,
                 'username': username,
-                'user_list': user_list
+                'enroll_info_list' : enroll_info_list
             }
             return render(request, 'index/hr.html', arguments)
         else:
@@ -134,6 +142,10 @@ def userlogout(request):
     logout(request)
     form = Login_form(data=request.POST)
     return redirect('login')
+
+
+
+
 
 
 
