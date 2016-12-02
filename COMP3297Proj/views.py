@@ -1,15 +1,13 @@
 from django.shortcuts import render, redirect
 from .forms import Register_form, Login_form
 from django.contrib.auth import authenticate, login, logout 
-from django.contrib.auth.decorators import login_required 
 
 # Create your views here.
 
 from django.http import HttpResponse
 from sdp.models import Category, User, Course, Participant, Enrollment
 
-@login_required(login_url='/login/')
-def view_index(request, identity, username):
+def view_index(request, identity, username):    #need to handle HR and Administrator as well
     this_user = User.objects.filter(username=username)
     if len(this_user)!=0:
         if identity == "Instructor":
@@ -39,7 +37,8 @@ def view_index(request, identity, username):
                 'user_list': user_list
             }
             if request.method == "GET":
-                tar_user = User.objects.filter(username=request.GET['this_user'])[0]
+                tar_user_name = request.GET.get('this_user')
+                tar_user = User.objects.filter(username=tar_user_name)[0]
                 tar_user.change_instructor()
                 return render(request, 'index/admin.html', arguments)
 
@@ -91,10 +90,7 @@ def register(request):
         form = Register_form(data=request.POST)
         if form.is_valid():
             form.save()
-            user = authenticate(username=form['username'].data,password=form['password1'].data)
-            login(request,user)
-            #return redirect('view_index', identity="Participant", username=form['username'].data) #Register success message  
-            return render(request, 'index/success.html', {"username":form['username'].data, "identity" : "Participant"})
+            return redirect("login") #Register success message  
         else:
             print (form.non_field_errors)
             return render(request, 'index/register.html', {'form':form})
@@ -153,10 +149,6 @@ def userlogout(request):
     logout(request)
     form = Login_form(data=request.POST)
     return redirect('login')
-
-
-
-
 
 
 
