@@ -38,8 +38,9 @@ def view_index(request, identity, username):    #need to handle HR and Administr
             }
             if request.method == "GET":
                 tar_user_name = request.GET.get('this_user')
-                tar_user = User.objects.filter(username=tar_user_name)[0]
-                tar_user.change_instructor()
+                tar_user_list = User.objects.filter(username=tar_user_name)
+                if len(tar_user_list)>0:
+                    tar_user_list[0].change_instructor()
                 return render(request, 'index/admin.html', arguments)
 
             return render(request, 'index/admin.html', arguments)
