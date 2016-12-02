@@ -97,6 +97,21 @@
               <tbody>
                 {% for user in user_list %}
                     <tr>
+                    <!--<form method="post">
+                        {% csrf_token %}
+                        <td><input type="selection" value="{{ user.username }}"></input></td>
+                        <td><label>{{ user.identity_instructor }}</label></td>
+                        <td><label>{{ user.identity_admin }}</label></td>
+                        <td><label>{{ user.identity_hr  }}</label></td>
+                        <td><label>{{ user.current_enrollment }}</label></td>
+                        <td>
+                        {% if user.identity_instructor %}
+                        <input type="submit" class="btn btn-danger" value="Resign"></input>
+                        {% else %}
+                        <input type="button" class="btn btn-success" value="Designate"></input>
+                        {% endif %}
+                        </td>
+                    </form>-->
                     <td>{{ user.username }}</td>
                     <td>{{ user.identity_instructor }}</td>
                     <td>{{ user.identity_admin }}</td>
@@ -104,9 +119,9 @@
                     <td>{{ user.current_enrollment }}</td>
                     <td>
                         {% if user.identity_instructor %}
-                        <button type="button" class="btn btn-danger">Resign</button>
+                        <a href="{% url 'view_index' identity=identity username=username %}?this_user={{ user.username }}"><button type="button"  class="btn btn-danger">Resign</button></a>
                         {% else %}
-                        <button type="button" class="btn btn-success">Designate</button>
+                        <a href="{% url 'view_index' identity=identity username=username %}?this_user={{ user.username }}"><button type="button" class="btn btn-success">Designate</button></a>
                         {% endif %}
                     </td>
                     </tr>
