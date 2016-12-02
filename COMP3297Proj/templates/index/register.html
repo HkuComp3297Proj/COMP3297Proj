@@ -46,28 +46,6 @@
           </button>
           <a class="navbar-brand" href="#">Staff Development Platform Powered by SuperS</a>
         </div>
-        <div id="navbar" class="navbar-collapse collapse">
-          <ul class="nav navbar-nav navbar-right">
-            <li><a class="navbar-nav-text" href="#">{{ username }}</a></li>
-            <li class="dropdown">
-                <a class="navbar-nav-text" href="#" class="dropdown-toggle" data-toggle="dropdown">
-                    {{ identity }}
-                    <b class="caret"></b>
-                </a>
-                <ul class="dropdown-menu">
-                    {% for i in identity_list%}
-                    <li><a href="{% url 'view_index' identity=identity username=username %}">{{i}}</a></li>
-                    {% endfor %}
-                </ul>
-            </li>
-            <!-- <li><a href="#">Identity: {{ this_identity }}</a></li> -->
-            <!-- <li><a href="#">Profile</a></li> -->
-            <li><a class="navbar-nav-text" href="#">Log out</a></li>
-          </ul>
-          <!-- <form class="navbar-form navbar-right"> -->
-            <!-- <input type="text" class="form-control" placeholder="Search..."> -->
-          <!-- </form> -->
-        </div>
       </div>
     </nav>
 
@@ -87,14 +65,12 @@
             </div>
           </div>
           {# <!-- <form action="{% url 'view_category' category=category identity=identity username=username %}" method="post"> --> #}
+          <p> Please register with your AB Credit 8-digit username.</p>
           <form action = {% url 'register' %} method="post">
             {% csrf_token %}
             <div class="fieldWrapper">
               {{ form.username.label_tag }}
               {{ form.username }}
-              <br>
-              {{ form.email.label_tag }}
-              {{ form.email }}
               <br>
               {{ form.password1.label_tag }}
               {{ form.password1 }}
@@ -103,6 +79,13 @@
               {{ form.password2 }}
             </div>
             <input type="submit" class="btn btn-success" value="Submit" />
+            {% if form.non_field_errors %}
+              <ul class='form-errors'>
+                {% for error in form.non_field_errors %}
+                  <li>{{ error }}</li>
+                {% endfor %}
+              </ul>
+            {% endif %}
           </form>
         </div>
       </div>

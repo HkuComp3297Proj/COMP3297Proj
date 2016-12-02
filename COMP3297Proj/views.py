@@ -72,12 +72,13 @@ def view_index(request, identity, username):    #need to handle HR and Administr
 
 def register(request):
     if request.method == 'POST':
-        form = Register_form(request.POST)
+        form = Register_form(data=request.POST)
         if form.is_valid():
             form.save()
-            return HttpResponse("Register success") #Redirect to index page 
+            return redirect("login") #Register success message  
         else:
-            return HttpResponse("Error") #Invalid form (various reason)
+            print (form.non_field_errors)
+            return render(request, 'index/register.html', {'form':form})
     else:
         form = Register_form()
         return render(request, 'index/register.html', {'form':form})
@@ -89,31 +90,45 @@ def userlogin(request):
         if form.is_valid():
             user = authenticate(username=form['username'].data,password=form['password'].data)
             if user is not None:
-                login(request,user)
-                this_user = User.objects.filter(username=form['username'].data)
-                identity = form['identity'].data
-                category_list = (c.name for c in Category.objects.all())
-                identity_list = this_user[0].get_identity_list()
-                identity_list.remove(identity)
-                arguments = {
-                'category_list': category_list,
-                'identity': identity,
-                'identity_list': identity_list,
-                'username': form['username'].data}
-                print(form['username'].data + " Login! " + "He is a " + identity)
-                #return render(request, 'index/view.html', arguments)
-
-                return redirect('view_course', identity=identity, username=form['username'].data) #need to be completed
+                form.login(request)
+                # this_user = User.objects.filter(username=form['username'].data)
+                # identity = form['identity'].data
+                # category_list = (c.name for c in Category.objects.all())
+                # identity_list = this_user[0].get_identity_list()
+                # identity_list.remove(identity)
+                # arguments = {
+                # 'category_list': category_list,
+                # 'identity': identity,
+                # 'identity_list': identity_list,
+                # 'username': form['username'].data}
+                # print(form['username'].data + " Login! " + "He is a " + identity)
+                return redirect('view_index', identity=form['identity'].data, username=form['username'].data) #need to be completed
                 #return HttpResponse(identity)
             else:
-                return HttpResponse("Error login message") #Return error login message 
+                return render(request, 'index/login.html',{'form':form})
         else:
             print(form.errors)
             print (form.non_field_errors)
-            return HttpResponse("Invalid form")
+            return render(request, 'index/login.html',{'form':form})
     else:
         form = Login_form()
         return render(request, 'index/login.html', {'form':form})
+
+# def userlogin(request):
+#     if request.POST:
+#         form = Login_form(request.POST)
+#         if form.is_valid():
+#             user=form.login(request)
+#             if user:
+#                 login(request, user)
+#                 print (form['username'].data + "login!")
+#                 return redirect('view_index', username=form['username'].data,identity=form['identity'].data)
+#             else:
+#                 return render(request, 'index/login.html', {'form':form})
+#         else:
+#             return render(request, 'index/login.html', {'form':form})
+#     else:
+#         return render(request, 'index/login.html', {'form':Login_form()})
 
 def userlogout(request):
     logout(request)

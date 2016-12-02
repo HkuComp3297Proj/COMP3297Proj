@@ -46,28 +46,6 @@
           </button>
           <a class="navbar-brand" href="#">Staff Development Platform Powered by SuperS</a>
         </div>
-        <div id="navbar" class="navbar-collapse collapse">
-          <ul class="nav navbar-nav navbar-right">
-            <li><a class="navbar-nav-text" href="#">{{ username }}</a></li>
-            <li class="dropdown">
-                <a class="navbar-nav-text" href="#" class="dropdown-toggle" data-toggle="dropdown">
-                    {{ identity }}
-                    <b class="caret"></b>
-                </a>
-                <ul class="dropdown-menu">
-                    {% for i in identity_list%}
-                    <li><a href="{% url 'view_index' identity=identity username=username %}">{{i}}</a></li>
-                    {% endfor %}
-                </ul>
-            </li>
-            <!-- <li><a href="#">Identity: {{ this_identity }}</a></li> -->
-            <!-- <li><a href="#">Profile</a></li> -->
-            <li><a class="navbar-nav-text" href="#">Log out</a></li>
-          </ul>
-          <!-- <form class="navbar-form navbar-right"> -->
-            <!-- <input type="text" class="form-control" placeholder="Search..."> -->
-          <!-- </form> -->
-        </div>
       </div>
     </nav>
 
@@ -100,6 +78,14 @@
               {{ form.identity }}
             </div>
             <input type="submit" class="btn btn-success" value="Submit" />
+            <br> If you don't have an account, please register</br><a style="display: inline" href="{% url 'register' %}">here.</a>
+            {% if form.non_field_errors %}
+              <ul class='form-errors'>
+                {% for error in form.non_field_errors %}
+                  <li>{{ error }}</li>
+                {% endfor %}
+              </ul>
+            {% endif %}
           </form>
         </div>
       </div>
