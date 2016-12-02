@@ -28,6 +28,7 @@ def view_index(request, identity, username):
             return render(request, 'index/instructor.html', arguments)
 
         elif identity == "Administrator":
+
             identity_list = this_user[0].get_identity_list()
             user_list = User.objects.all()
             identity_list.remove(identity)
@@ -37,6 +38,11 @@ def view_index(request, identity, username):
                 'username': username,
                 'user_list': user_list
             }
+            if request.method == "GET":
+                tar_user = User.objects.filter(username=request.GET['this_user'])[0]
+                tar_user.change_instructor()
+                return render(request, 'index/admin.html', arguments)
+
             return render(request, 'index/admin.html', arguments)
 
         elif identity == "HR":
