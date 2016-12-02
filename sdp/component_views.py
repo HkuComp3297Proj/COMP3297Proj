@@ -13,7 +13,11 @@ def view_text(request, category, course, module, component, identity, username):
     else:
         return HttpResponse("Sorry! There is no text component called " + component + ".")
 
+<<<<<<< Updated upstream
 @login_required(login_url='/login/')
+=======
+
+>>>>>>> Stashed changes
 def view_file(request, category, course, module, component, identity, username):
     if len(Component_File.objects.filter(name=component))!=0:
         return HttpResponse("This is View file component: " + component + " page for user " + username + " as a " + identity)

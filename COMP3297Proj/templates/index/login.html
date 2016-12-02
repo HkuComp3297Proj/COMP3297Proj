@@ -67,18 +67,30 @@
           {# <!-- <form action="{% url 'view_category' category=category identity=identity username=username %}" method="post"> --> #}
           <form method="post">
             {% csrf_token %}
-            <div class="fieldWrapper">
-              {{ form.username.label_tag }}
-              {{ form.username }}
-              <br>
-              {{ form.password.label_tag }}
-              {{ form.password }}
-              <br>
-              {{ form.identity.label_tag }}
-              {{ form.identity }}
+
+            <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-3 main">
+                {{ form.username.label_tag }}
+                {{ form.username }}
             </div>
-            <input type="submit" class="btn btn-success" value="Submit" />
-            <br> If you don't have an account, please register</br><a style="display: inline" href="{% url 'register' %}">here.</a>
+            <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-3 main">
+                {{ form.password.label_tag }}
+                {{ form.password }}
+            </div>
+            <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-3 main">
+                {{ form.identity.label_tag }}
+                <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                {{ form.identity }}
+            </div>
+            <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-4 main">
+                <input type="submit" class="btn btn-success" value="Submit" />
+
+            </div>
+            <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-3 main">
+                If you don't have an account, please register <a style="display: inline" href="{% url 'register' %}">here.</a>
+            </div>
+
+
+
             {% if form.non_field_errors %}
               <ul class='form-errors'>
                 {% for error in form.non_field_errors %}
