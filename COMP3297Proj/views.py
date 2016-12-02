@@ -104,6 +104,7 @@ def userlogin(request):
             user = authenticate(username=form['username'].data,password=form['password'].data)
             if user is not None:
                 form.login(request)
+                login(request,user)
                 # this_user = User.objects.filter(username=form['username'].data)
                 # identity = form['identity'].data
                 # category_list = (c.name for c in Category.objects.all())
