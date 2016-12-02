@@ -709,7 +709,14 @@
       <option name="project" value="LOCAL" />
       <updated>1480657976898</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="Heading: Staff Development Platform Powered by SuperS&#10;now can link to front page for instructor.&#10;">
+      <created>1480658036638</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1480658036638</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="ToolWindowManager">
