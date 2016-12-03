@@ -46,6 +46,10 @@ class User(AbstractUser):
             identity_list.append("HR")
         return identity_list
 
+    def change_instructor(self):
+        self.identity_instructor = not self.identity_instructor
+        self.save()
+
 class Participant(User):
     class Meta:
         proxy = True

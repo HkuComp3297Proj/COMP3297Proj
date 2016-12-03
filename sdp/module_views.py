@@ -3,12 +3,14 @@ from django.shortcuts import render, redirect
 # Create your views here.
 
 from django.http import HttpResponse
+from django.contrib.auth.decorators import login_required 
 from .models import Category, Course, User, Participant, Enrollment, Module
 from .forms import Module_form, Text_Component_form, Image_Component_form, File_Component_form, Video_Component_form
 from itertools import chain
 from operator import attrgetter
 
 
+@login_required(login_url='/login/')
 def view_module(request, category, course, module, identity, username):
     this_category = Category.objects.filter(name=category)
     this_course = Course.objects.filter(name=course)
@@ -36,6 +38,7 @@ def view_module(request, category, course, module, identity, username):
     else:
         return HttpResponse("Sorry! There is no module called " + module + ".")
 
+<<<<<<< HEAD
 def modify_module(request, category, course, module, username):
     identity = "Instructor"
     this_category = Category.objects.filter(name=category)
@@ -80,6 +83,10 @@ def modify_module(request, category, course, module, username):
 
 
 def creation_template(request, category, course, module, username, form):
+=======
+@login_required(login_url='/login/')
+def creation_template(request, category, course, module, username, component_type):
+>>>>>>> 29cd4a54d27828f99fc5e4b7389deb8d543720e4
     identity = "Instructor"
     this_category = Category.objects.filter(name=category)
     this_user = User.objects.filter(username=username)
@@ -103,6 +110,7 @@ def creation_template(request, category, course, module, username, form):
     else:
         return HttpResponse("Sorry! There is no module called " + course + ".")
 
+@login_required(login_url='/login/')
 def create_text_component(request, category, course, module, username):
     identity = "Instructor"
     if request.method == 'POST':
@@ -120,6 +128,7 @@ def create_text_component(request, category, course, module, username):
     else:
         return creation_template(request, category, course, module, username, form = Text_Component_form())
 
+@login_required(login_url='/login/')
 def create_image_component(request, category, course, module, username):
     identity = "Instructor"
     if request.method == 'POST':
@@ -139,6 +148,7 @@ def create_image_component(request, category, course, module, username):
     else:
         return creation_template(request, category, course, module, username, form = Image_Component_form())
 
+@login_required(login_url='/login/')
 def create_file_component(request, category, course, module, username):
     identity = "Instructor"
     if request.method == 'POST':
