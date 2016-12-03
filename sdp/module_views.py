@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect
 # Create your views here.
 
 from django.http import HttpResponse
-from django.contrib.auth.decorators import login_required 
+from django.contrib.auth.decorators import login_required
 from .models import Category, Course, User, Participant, Enrollment, Module
 from .forms import Module_form, Text_Component_form, Image_Component_form, File_Component_form, Video_Component_form
 from itertools import chain
@@ -38,13 +38,8 @@ def view_module(request, category, course, module, identity, username):
     else:
         return HttpResponse("Sorry! There is no module called " + module + ".")
 
-<<<<<<< HEAD
-<<<<<<< HEAD
+
 @login_required(login_url='/login/')
-def creation_template(request, category, course, module, username, component_type):
-=======
-=======
->>>>>>> _construction
 def modify_module(request, category, course, module, username):
     identity = "Instructor"
     this_category = Category.objects.filter(name=category)
@@ -88,15 +83,8 @@ def modify_module(request, category, course, module, username):
         return HttpResponse("Sorry! There is no course called " + course + ".")
 
 
-def creation_template(request, category, course, module, username, form):
-<<<<<<< HEAD
->>>>>>> _construction
-=======
-=======
 @login_required(login_url='/login/')
 def creation_template(request, category, course, module, username, component_type):
->>>>>>> 29cd4a54d27828f99fc5e4b7389deb8d543720e4
->>>>>>> _construction
     identity = "Instructor"
     this_category = Category.objects.filter(name=category)
     this_user = User.objects.filter(username=username)
@@ -178,6 +166,7 @@ def create_file_component(request, category, course, module, username):
     else:
         return creation_template(request, category, course, module, username, form = File_Component_form())
 
+@login_required(login_url='/login/')
 def create_video_component(request, category, course, module, username):
     identity = "Instructor"
     if request.method == 'POST':
