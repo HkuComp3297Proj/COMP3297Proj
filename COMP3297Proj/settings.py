@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'sdp.apps.SdpConfig',
+    'embed_video',
 ]
 
 MIDDLEWARE = [
@@ -71,6 +72,9 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'COMP3297Proj.wsgi.application'
 
+EMBED_VIDEO_BACKENDS = (
+    'embed_video.backends.YoutubeBackend',
+)
 
 # Database
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
