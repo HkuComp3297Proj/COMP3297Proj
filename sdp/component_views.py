@@ -15,8 +15,6 @@ def view_text(request, category, course, module, component, identity, username):
 
 
 @login_required(login_url='/login/')
-
-
 def view_file(request, category, course, module, component, identity, username):
     if len(Component_File.objects.filter(name=component))!=0:
         return HttpResponse("This is View file component: " + component + " page for user " + username + " as a " + identity)

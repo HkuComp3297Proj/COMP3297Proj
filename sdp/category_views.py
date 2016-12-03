@@ -3,9 +3,11 @@ from django.shortcuts import render, redirect
 # Create your views here.
 
 from django.http import HttpResponse, HttpResponseRedirect
+from django.contrib.auth.decorators import login_required 
 from .models import Category, User
 from .forms import Course_form
 
+@login_required(login_url='/login/')
 def view_category(request, category, identity, username):
     this_category = Category.objects.filter(name=category)
     this_user = User.objects.filter(username=username)
