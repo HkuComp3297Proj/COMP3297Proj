@@ -39,9 +39,12 @@ def view_module(request, category, course, module, identity, username):
         return HttpResponse("Sorry! There is no module called " + module + ".")
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 @login_required(login_url='/login/')
 def creation_template(request, category, course, module, username, component_type):
 =======
+=======
+>>>>>>> _construction
 def modify_module(request, category, course, module, username):
     identity = "Instructor"
     this_category = Category.objects.filter(name=category)
@@ -86,6 +89,13 @@ def modify_module(request, category, course, module, username):
 
 
 def creation_template(request, category, course, module, username, form):
+<<<<<<< HEAD
+>>>>>>> _construction
+=======
+=======
+@login_required(login_url='/login/')
+def creation_template(request, category, course, module, username, component_type):
+>>>>>>> 29cd4a54d27828f99fc5e4b7389deb8d543720e4
 >>>>>>> _construction
     identity = "Instructor"
     this_category = Category.objects.filter(name=category)
