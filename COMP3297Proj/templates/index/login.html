@@ -46,28 +46,6 @@
           </button>
           <a class="navbar-brand" href="#">Staff Development Platform Powered by SuperS</a>
         </div>
-        <div id="navbar" class="navbar-collapse collapse">
-          <ul class="nav navbar-nav navbar-right">
-            <li><a class="navbar-nav-text" href="#">{{ username }}</a></li>
-            <li class="dropdown">
-                <a class="navbar-nav-text" href="#" class="dropdown-toggle" data-toggle="dropdown">
-                    {{ identity }}
-                    <b class="caret"></b>
-                </a>
-                <ul class="dropdown-menu">
-                    {% for i in identity_list%}
-                    <li><a href="{% url 'view_index' identity=identity username=username %}">{{i}}</a></li>
-                    {% endfor %}
-                </ul>
-            </li>
-            <!-- <li><a href="#">Identity: {{ this_identity }}</a></li> -->
-            <!-- <li><a href="#">Profile</a></li> -->
-            <li><a class="navbar-nav-text" href="#">Log out</a></li>
-          </ul>
-          <!-- <form class="navbar-form navbar-right"> -->
-            <!-- <input type="text" class="form-control" placeholder="Search..."> -->
-          <!-- </form> -->
-        </div>
       </div>
     </nav>
 
@@ -89,17 +67,37 @@
           {# <!-- <form action="{% url 'view_category' category=category identity=identity username=username %}" method="post"> --> #}
           <form method="post">
             {% csrf_token %}
-            <div class="fieldWrapper">
-              {{ form.username.label_tag }}
-              {{ form.username }}
-              <br>
-              {{ form.password.label_tag }}
-              {{ form.password }}
-              <br>
-              {{ form.identity.label_tag }}
-              {{ form.identity }}
+
+            <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-3 main">
+                {{ form.username.label_tag }}
+                {{ form.username }}
             </div>
-            <input type="submit" class="btn btn-success" value="Submit" />
+            <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset- main">
+                {{ form.password.label_tag }}
+                {{ form.password }}
+            </div>
+            <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-3 main">
+                {{ form.identity.label_tag }}
+                <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                {{ form.identity }}
+            </div>
+            <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-4 main">
+                <input type="submit" class="btn btn-success" value="Submit" />
+
+            </div>
+            <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-3 main">
+                If you don't have an account, please register <a style="display: inline" href="{% url 'register' %}">here.</a>
+            </div>
+
+
+
+            {% if form.non_field_errors %}
+              <ul class ="alert-warning">
+                {% for error in form.non_field_errors %}
+                  <p>{{ error }}</p>
+                {% endfor %}
+              </ul>
+            {% endif %}
           </form>
         </div>
       </div>
