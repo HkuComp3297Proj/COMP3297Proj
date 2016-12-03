@@ -82,12 +82,26 @@
         </div>
         <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
           <div class="row placeholders">
-            <div class="col-xs-10 col-sm-10 placeholder text-left">
+            <div class="col-xs-8 col-sm-8 placeholder text-left">
               <h1 class="page-header">{{course}}</h1>
             </div>
             {% if instructor == username %}
             <div class="col-xs-2 col-sm-2 placeholder">
+              {% if open %}
+              <button type="button" class="btn btn-success disabled" >Opened</button>
+              {% else %}
+              <form method="post">
+                {% csrf_token %}
+                <input type="submit" class="btn btn-success" value="Open" />
+              </form>
+              {% endif %}
+            </div>
+            <div class="col-xs-2 col-sm-2 placeholder">
+              {% if open %}
+              <button type="button" class="btn btn-success disabled" onclick="location.href='{% url 'create_module' category=category course=course username=username %}'">+module</button>
+              {% else %}
               <button type="button" class="btn btn-success" onclick="location.href='{% url 'create_module' category=category course=course username=username %}'">+module</button>
+              {% endif %}
             </div>
             {% endif %}
           </div>
@@ -99,7 +113,12 @@
             </div>
             {% if instructor == username %}
             <div class="col-xs-2 col-sm-2 placeholder">
-              <button type="button" class="btn btn-success" onclick="location.href='{% url 'view_module' category=category course=course module=module.name identity=identity username=username %}'">access</button>
+              <div class="btn-group">
+                {% if not open %}
+                <button type="button" class="btn btn-success" onclick="location.href='{% url 'modify_module' category=category course=course module=module.name username=username %}'">Modify</button>
+                {% endif %}
+                <button type="button" class="btn btn-success" onclick="location.href='{% url 'view_module' category=category course=course module=module.name identity=identity username=username %}'">access</button>
+              </div>
             </div>
             {% endif %}
           </div>

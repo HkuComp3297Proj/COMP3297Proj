@@ -1,6 +1,7 @@
 from django.db import models
 from itertools import chain
 from django.contrib.auth.models import AbstractUser
+from embed_video.fields import EmbedVideoField
 # Create your models here.
 
 class User(AbstractUser):
@@ -108,7 +109,6 @@ class HR(User):
 
 class Category(models.Model):
     name = models.CharField(max_length=100, unique=True)
-    # number_of_course = models.PositiveIntegerField(default=0, editable=False)
     number_of_course = models.PositiveIntegerField(default=0)
 
     def __str__(self):
@@ -142,15 +142,16 @@ class Course(models.Model):
         this_course = Course.objects.filter(name=course)[0]
         module = Module(name=name, number_of_component=0, course=this_course, sequence=this_course.number_of_module)
         module.save()
-        module.insert_module(sequence)
+        if sequence - 1 < this_course.number_of_module:
+            module.insert_module(sequence)
 
     def open(self):
-        self.opened = True;
+        self.opened = True
+        self.save()
 
 
 class Module(models.Model):
     name = models.CharField(max_length=100)
-    # number_of_component = models.PositiveIntegerField(default=0, editable=False)
     number_of_component = models.PositiveIntegerField(default=0)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     sequence = models.PositiveIntegerField()
@@ -166,38 +167,52 @@ class Module(models.Model):
         this_module = Module.objects.filter(name=module)[0]
         component = Component_Text(name=name, module=this_module, sequence=this_module.number_of_component, text_field=text_field)
         component.save()
-        component.insert_component(sequence)
+        if sequence - 1 < this_module.number_of_component:
+            component.insert_component(sequence)
 
     @classmethod
     def create_image_component(self, name, module, sequence, image_field):
         this_module = Module.objects.filter(name=module)[0]
         component = Component_Image(name=name, module=this_module, sequence=this_module.number_of_component, image_field=image_field)
         component.save()
-        component.insert_component(sequence)
+        if sequence - 1 < this_module.number_of_component:
+            component.insert_component(sequence)
 
     @classmethod
     def create_file_component(self, name, module, sequence, file_field):
         this_module = Module.objects.filter(name=module)[0]
         component = Component_File(name=name, module=this_module, sequence=this_module.number_of_component, file_field=file_field)
         component.save()
-        component.insert_component(sequence)
+        if sequence - 1 < this_module.number_of_component:
+            component.insert_component(sequence)
 
-    def modify_module(self, sequence, new_name):
+    @classmethod
+    def create_video_component(self, name, module, sequence, url_field):
+        this_module = Module.objects.filter(name=module)[0]
+        component = Component_Video(name=name, module=this_module, sequence=this_module.number_of_component, url_field=url_field)
+        component.save()
+        if sequence - 1 < this_module.number_of_component:
+            component.insert_component(sequence)
+
+    def modify_module(self, new_name, sequence):
         self.name = new_name
+        self.save()
         self.insert_module(sequence)
-        pass
 
     def insert_module(self, future_seq):
-        if future_seq==self.sequence:
+        if future_seq - 1 == self.sequence:
             self.save()
             return
         past_seq = self.sequence
-        self.sequence = future_seq
+        if future_seq > self.course.number_of_module:
+            self.sequence = self.course.number_of_module - 1
+        else:
+            self.sequence = future_seq - 1
         for s in self.course.module_set.all():
-            if s!=self and s.sequence>=min(past_seq, future_seq) and s.sequence<=max(past_seq, future_seq):
-                if past_seq<future_seq:
+            if s!=self and s.sequence>=min(past_seq, self.sequence) and s.sequence<=max(past_seq, self.sequence):
+                if past_seq<self.sequence:
                     s.sequence-=1
-                elif past_seq>future_seq:
+                elif past_seq>self.sequence:
                     s.sequence+=1
                 s.save()
         self.save()
@@ -220,10 +235,12 @@ class Component(models.Model):
     TEXT = 'T'
     FILE = 'F'
     IMAGE = 'I'
+    VIDEO = 'V'
     COMPONENT_TYPE_CHOICES = (
         (TEXT, 'Text'),
         (FILE, 'File'),
         (IMAGE, 'Image'),
+        (VIDEO, 'Video'),
     )
 
     name = models.CharField(max_length=100)
@@ -243,29 +260,37 @@ class Component(models.Model):
     def save(self, *args, **kwargs):
         super(Component, self).save(*args, **kwargs)
         module = self.module
-        module.number_of_component = module.component_file_set.count() + module.component_text_set.count() + module.component_image_set.count()
+        module.number_of_component = module.component_file_set.count() + module.component_text_set.count() + module.component_image_set.count() + module.component_video_set.count()
         module.save()
 
     def delete(self):
-        all_component_list = list(chain(self.module.component_text_set.all(), self.module.component_image_set.all(), self.module.component_file_set.all()))
+        all_component_list = list(chain(self.module.component_text_set.all(), self.module.component_image_set.all(), self.module.component_file_set.all(), self.module.component_video_set.all()))
         for component in all_component_list:
             if component.sequence > self.sequence:
                 component.sequence -= 1
                 component.save()
         super(Component, self).delete()
 
+    def modify_component(self, new_name, sequence):
+        self.name = new_name
+        self.save()
+        self.insert_component(sequence)
+
     def insert_component(self, future_seq):
         if future_seq==self.sequence:
             self.save()
             return
         past_seq = self.sequence
-        self.sequence = future_seq
-        all_component_list = list(chain(self.module.component_text_set.all(), self.module.component_image_set.all(), self.module.component_file_set.all()))
+        if future_seq > self.module.number_of_component:
+            self.sequence = self.module.number_of_component - 1
+        else:
+            self.sequence = future_seq - 1
+        all_component_list = list(chain(self.module.component_text_set.all(), self.module.component_image_set.all(), self.module.component_file_set.all(), self.module.component_video_set.all()))
         for s in all_component_list:
-            if s!=self and s.sequence >= min(past_seq, future_seq) and s.sequence<=max(past_seq, future_seq):
-                if past_seq < future_seq:
+            if s!=self and s.sequence >= min(past_seq, self.sequence) and s.sequence<=max(past_seq, self.sequence):
+                if past_seq < self.sequence:
                     s.sequence-=1
-                elif past_seq > future_seq:
+                elif past_seq > self.sequence:
                     s.sequence+=1
                 s.save()
         self.save()
@@ -273,6 +298,11 @@ class Component(models.Model):
 
 class Component_Text(Component):
     text_field = models.TextField()
+
+    def modify_component(self, new_name, sequence, text_field):
+        super(Component_Text, self).save(new_name, sequence)
+        self.text_field = text_field
+        self.save()
 
     def save(self, *args, **kwargs):
         self.component_type = self.TEXT
@@ -291,6 +321,13 @@ class Component_File(Component):
     def save(self, *args, **kwargs):
         self.component_type = self.FILE
         super(Component_File, self).save(*args, **kwargs)
+
+class Component_Video(Component):
+    url_field = EmbedVideoField()
+
+    def save(self, *args, **kwargs):
+        self.component_type = self.VIDEO
+        super(Component_Video, self).save(*args, **kwargs)
 
 class Enrollment(models.Model):
     participant = models.ForeignKey(Participant, on_delete=models.CASCADE)

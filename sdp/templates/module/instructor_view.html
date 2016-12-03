@@ -80,37 +80,40 @@
             {% endfor %}
           </ul>
         </div>
-        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+        <div class="col-sm-8 col-sm-offset-4 col-md-10 col-md-offset-2 main">
           <div class="row placeholders">
-            <div class="col-xs-9 col-sm-9 placeholder text-left">
+            <div class="col-xs-8 col-sm-8 placeholder text-left">
               <h1 class="page-header">{{course}}</h1>
             </div>
           </div>
           <div class="row placeholders">
-            <div class="col-xs-9 col-sm-9 placeholder text-left">
+            <div class="col-xs-8 col-sm-8 placeholder text-left">
               <h2 class="page-header">Module {{module.sequence}}: {{module.name}}</h2>
             </div>
-            <div class="col-xs-3 col-sm-3 placeholder">
+            <div class="col-xs-4 col-sm-4 placeholder">
               <div class="btn-group">
                 <button type="button" class="btn btn-success" onclick="location.href='{% url 'create_text_component' category=category course=course module=module.name username=username %}'">+Text</button>
                 <button type="button" class="btn btn-success" onclick="location.href='{% url 'create_image_component' category=category course=course module=module.name username=username %}'">+Image</button>
                 <button type="button" class="btn btn-success" onclick="location.href='{% url 'create_file_component' category=category course=course module=module.name username=username %}'">+File</button>
-            </div>
+                <button type="button" class="btn btn-success" onclick="location.href='{% url 'create_video_component' category=category course=course module=module.name username=username %}'">+Video</button>
+              </div>
             </div>
           </div>
 
           {% for component in component_list %}
           <div class="row placeholders">
-            <div class="col-xs-9 col-sm-9 placeholder text-left">
+            <div class="col-xs-8 col-sm-8 placeholder text-left">
               <h3 class="page-header">Component {{component.sequence}}: {{component.name}}</h3>
             </div>
-            <div class="col-xs-3 col-sm-3 placeholder">
+            <div class="col-xs-4 col-sm-4 placeholder">
               {% if component.type == 'T' %}
               <button type="button" class="btn btn-success" onclick="location.href='{% url 'view_component_text' category=category course=course module=module.name component=component.name identity=identity username=username %}'">modify</button>
               {% elif component.type == 'I' %}
               <button type="button" class="btn btn-success" onclick="location.href='{% url 'view_component_image' category=category course=course module=module.name component=component.name identity=identity username=username %}'">modify</button>
               {% elif component.type == 'F' %}
               <button type="button" class="btn btn-success" onclick="location.href='{% url 'view_component_file' category=category course=course module=module.name component=component.name identity=identity username=username %}'">modify</button>
+              {% elif component.type == 'V' %}
+              <button type="button" class="btn btn-success" onclick="location.href='{% url 'view_component_video' category=category course=course module=module.name component=component.name identity=identity username=username %}'">modify</button>
               {% endif %}
             </div>
           </div>
