@@ -91,7 +91,7 @@
                     <input type="submit" class="btn btn-success" value="Submit" />
                   </div>
                 {% if form.non_field_errors %}
-                  <ul class='form-errors'>
+                  <ul class='alert-warning'>
                     {% for error in form.non_field_errors %}
                       <li>{{ error }}</li>
                     {% endfor %}
@@ -99,18 +99,7 @@
                 {% endif %}
               </form>
             </div>
-<<<<<<< HEAD
-            <input type="submit" class="btn btn-success" value="Submit" />
-            {% if form.non_field_errors %}
-              <ul class ="alert-warning">
-                {% for error in form.non_field_errors %}
-                  <li>{{ error }}</li>
-                {% endfor %}
-              </ul>
-            {% endif %}
           </form>
-=======
->>>>>>> 26cdc4b018f47dc6546cdde0027a1b5cc8203e9c
         </div>
       </div>
     </div>
