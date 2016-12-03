@@ -90,7 +90,6 @@
                     <th>Instructor</th>
                     <th>Administrator</th>
                     <th>HR</th>
-                    <th>Current Enrollment</th>
                     <th>Access</th>
                 </tr>
               </thead>
@@ -116,7 +115,6 @@
                     <td>{{ user.identity_instructor }}</td>
                     <td>{{ user.identity_admin }}</td>
                     <td>{{ user.identity_hr }}</td>
-                    <td>{{ user.current_enrollment }}</td>
                     <td>
                         {% if user.identity_instructor %}
                         <a href="{% url 'view_index' identity=identity username=username %}?this_user={{ user.username }}"><button type="button"  class="btn btn-danger">Resign</button></a>
