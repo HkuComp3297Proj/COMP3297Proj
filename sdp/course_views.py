@@ -12,6 +12,7 @@ def view_course(request, category, course, identity, username):
     this_category = Category.objects.filter(name=category)
     this_user = User.objects.filter(username=username)
     this_course = Course.objects.filter(name=course)
+    opened = this_course[0].opened
     if len(this_category)!=0 and len(this_course)!=0 and len(this_user)!=0:
         category_list = (c.name for c in Category.objects.all())
         module_list = ({'name': m.name, 'sequence': m.sequence+1} for m in this_course[0].module_set.all().order_by('sequence'))
@@ -21,6 +22,7 @@ def view_course(request, category, course, identity, username):
         'category': category,
         'category_list': category_list,
         'course': course,
+        'open': opened,
         'instructor':this_course[0].instructor.username,
         'module_list': module_list,
         'identity': identity,
@@ -43,7 +45,11 @@ def view_course(request, category, course, identity, username):
             else:
                 return render(request, 'course/participant_view.html', arguments)
         elif identity == "Instructor":
-            return render(request, 'course/instructor_view.html', arguments) #Different views for instructor of the course and other instructors 
+            if request.method == 'POST':
+                this_course[0].open()
+                return redirect('view_course', category=category, course=course, identity=identity, username=username)
+            else:
+                return render(request, 'course/instructor_view.html', arguments) #Different views for instructor of the course and other instructors
     else:
         return HttpResponse("Sorry! There is no course called " + course + ".")
 
@@ -66,6 +72,9 @@ def create_module(request, category, course, username):
         this_category = Category.objects.filter(name=category)
         this_user = User.objects.filter(username=username)
         this_course = Course.objects.filter(name=course)
+        opened = this_course[0].opened
+        if opened:
+            return HttpResponse("Sorry! The course " + course + " has been opened. No creation on modules is forbidden.")
         if len(this_category)!=0 and len(this_course)!=0 and len(this_user)!=0:
             category_list = (c.name for c in Category.objects.all())
             identity_list = this_user[0].get_identity_list()

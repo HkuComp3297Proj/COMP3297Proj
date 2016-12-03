@@ -27,3 +27,9 @@ def view_image(request, category, course, module, component, identity, username)
         return HttpResponse("This is View image component: " + component + " page for user " + username + " as a " + identity)
     else:
         return HttpResponse("Sorry! There is no image component called " + component + ".")
+
+def view_video(request, category, course, module, component, identity, username):
+    if len(Component_Video.objects.filter(name=component))!=0:
+        return HttpResponse("This is View video component: " + component + " page for user " + username + " as a " + identity)
+    else:
+        return HttpResponse("Sorry! There is no video component called " + component + ".")
