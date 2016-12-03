@@ -5,7 +5,9 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from .models import Category, Course, User, Participant, Enrollment
 from .forms import Module_form
+from django.contrib.auth.decorators import login_required 
 
+@login_required(login_url='/login/')
 def view_course(request, category, course, identity, username):
     this_category = Category.objects.filter(name=category)
     this_user = User.objects.filter(username=username)
@@ -45,6 +47,7 @@ def view_course(request, category, course, identity, username):
     else:
         return HttpResponse("Sorry! There is no course called " + course + ".")
 
+@login_required(login_url='/login/')
 def create_module(request, category, course, username):
     identity = "Instructor"
     if request.method == 'POST':
