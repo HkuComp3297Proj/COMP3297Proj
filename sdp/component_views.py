@@ -272,7 +272,7 @@ def modify_video_component(request, category, course, module, component, usernam
             # process the data in form.cleaned_data as required
             # ...
             # redirect to a new URL:
-            this_component[0].modify_component(new_name=form['name'].data, module=module, sequence=int(form['sequence'].data), url_field=form['url_field'].data)
+            this_component[0].modify_component(new_name=form['name'].data, sequence=int(form['sequence'].data), url_field=form['url_field'].data)
             return redirect('view_module', category=category, course=course, module=module, identity=identity, username=username)
         else:
             return HttpResponse("Sorry! This is not valid! Please go back!" + str(form.errors))
