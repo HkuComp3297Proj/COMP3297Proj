@@ -223,12 +223,15 @@ def modify_image_component(request, category, course, module, component, usernam
     if request.method == 'POST':
         # create a form instance and populate it with data from the request:
         form = Image_Component_form(request.POST, request.FILES)
+        img_to_set = form['image_field'].data
+        if img_to_set is None:
+            img_to_set = this_component[0].image_field;
         # check whether it's valid:
-        if form.is_valid():
+        if form['name'].data is not None and form['sequence'].data is not None:
             # process the data in form.cleaned_data as required
             # ...
             # redirect to a new URL:
-            this_component[0].modify_component(new_name=form['name'].data, sequence=int(form['sequence'].data), image_field=form['image_field'].data)
+            this_component[0].modify_component(new_name=form['name'].data, sequence=int(form['sequence'].data), image_field=img_to_set)
             return redirect('view_module', category=category, course=course, module=module, identity=identity, username=username)
         else:
             return HttpResponse("Sorry! This is not valid! Please go back!" + str(form.errors))
@@ -246,7 +249,7 @@ def modify_file_component(request, category, course, module, component, username
         # create a form instance and populate it with data from the request:
         form = File_Component_form(request.POST, request.FILES)
         # check whether it's valid:
-        if form.is_valid():
+        if form['name'].data is not None and form['sequence'].data is not None:
             # process the data in form.cleaned_data as required
             # ...
             # redirect to a new URL:
@@ -268,7 +271,7 @@ def modify_video_component(request, category, course, module, component, usernam
         # create a form instance and populate it with data from the request:
         form = Video_Component_form(request.POST)
         # check whether it's valid:
-        if form.is_valid():
+        if form['name'].data is not None and form['sequence'].data is not None:
             # process the data in form.cleaned_data as required
             # ...
             # redirect to a new URL:
