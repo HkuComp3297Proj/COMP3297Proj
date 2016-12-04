@@ -8,6 +8,30 @@ from .forms import Module_form, Text_Component_form, Image_Component_form, File_
 from itertools import chain
 from operator import attrgetter
 
+def check_access (course, module, component, username):
+    this_course = Course.objects.filter(name=course)
+    this_module = Module.objects.filter(name=module)
+    this_user = User.objects.filter(username=username)
+    if not this_course[0].opened:
+        return False
+    participant = Participant.objects.filter(username=username)[0]
+    is_enrolled = participant.is_enrolled()
+    is_current_enrolled = False
+    if is_enrolled:
+        current_enrollment = participant.enrollment_set.filter(completion_date__isnull=True)[0]
+        if current_enrollment.course.name == course:
+            is_current_enrolled = True
+            current_progress = current_enrollment.module_progress + 1
+    enrolled_course = (e.course.name for e in participant.enrollment_set.filter(completion_date__isnull=False))
+    is_past_enrolled = False
+    for n in enrolled_course:
+        if n == course:
+            is_past_enrolled = True
+            break
+    if (not (is_past_enrolled or is_current_enrolled)) or (is_current_enrolled and this_module[0].sequence + 1 > current_progress):
+        return False
+    return True
+
 
 @login_required(login_url='/login/')
 def view_text(request, category, course, module, component, identity, username):
@@ -31,7 +55,10 @@ def view_text(request, category, course, module, component, identity, username):
             'username': username
         }
         if identity == "Participant":
-            return render(request, 'component/participant_view.html', arguments)
+            if check_access(course, module, component, username):
+                return render(request, 'component/participant_view.html', arguments)
+            else:
+                return HttpResponse("Sorry! You are not allowed to view this Component.")
         elif identity == "Instructor":
             return render(request, 'component/instructor_view.html', arguments)
     else:
@@ -61,7 +88,10 @@ def view_file(request, category, course, module, component, identity, username):
         }
         #return redirect('download', pk=this_component[0].pk)
         if identity == "Participant":
-            return render(request, 'component/participant_view.html', arguments)
+            if check_access(course, module, component, username):
+                return render(request, 'component/participant_view.html', arguments)
+            else:
+                return HttpResponse("Sorry! You are not allowed to view this Component.")
         elif identity == "Instructor":
             return render(request, 'component/instructor_view.html', arguments)
     else:
@@ -89,7 +119,10 @@ def view_image(request, category, course, module, component, identity, username)
             'username': username
             }
         if identity == "Participant":
-            return render(request, 'component/participant_view.html', arguments)
+            if check_access(course, module, component, username):
+                return render(request, 'component/participant_view.html', arguments)
+            else:
+                return HttpResponse("Sorry! You are not allowed to view this Component.")
         elif identity == "Instructor":
             return render(request, 'component/instructor_view.html', arguments)
     else:
@@ -117,7 +150,10 @@ def view_video(request, category, course, module, component, identity, username)
             'username': username
         }
         if identity == "Participant":
-            return render(request, 'component/participant_view.html', arguments)
+            if check_access(course, module, component, username):
+                return render(request, 'component/participant_view.html', arguments)
+            else:
+                return HttpResponse("Sorry! You are not allowed to view this Component.")
         elif identity == "Instructor":
             return render(request, 'component/instructor_view.html', arguments)
     else:
