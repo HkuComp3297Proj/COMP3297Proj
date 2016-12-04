@@ -293,7 +293,7 @@ class Component(models.Model):
         self.insert_component(sequence)
 
     def insert_component(self, future_seq):
-        if future_seq==self.sequence:
+        if future_seq - 1 ==self.sequence:
             self.save()
             return
         past_seq = self.sequence

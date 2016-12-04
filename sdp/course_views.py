@@ -10,8 +10,8 @@ from django.contrib.auth.decorators import login_required
 @login_required(login_url='/login/')
 def view_course(request, category, course, identity, username):
     this_category = Category.objects.filter(name=category)
+    this_course = this_category[0].course_set.filter(name=course)
     this_user = User.objects.filter(username=username)
-    this_course = Course.objects.filter(name=course)
     opened = this_course[0].opened
     if len(this_category)!=0 and len(this_course)!=0 and len(this_user)!=0:
         category_list = (c.name for c in Category.objects.all())
@@ -79,12 +79,14 @@ def create_module(request, category, course, username):
             # redirect to a new URL:
             Course.create_module(name=form['name'].data, course=course, sequence=int(form['sequence'].data))
             return redirect('view_course', category=category, course=course, identity=identity, username=username)
+        else:
+            return HttpResponse("Sorry! This is not valid! Please go back!" + str(form.errors))
 
     # if a GET (or any other method) we'll create a blank form
     else:
         this_category = Category.objects.filter(name=category)
+        this_course = this_category[0].course_set.filter(name=course)
         this_user = User.objects.filter(username=username)
-        this_course = Course.objects.filter(name=course)
         opened = this_course[0].opened
         if opened:
             return HttpResponse("Sorry! The course " + course + " has been opened. No creation on modules is forbidden.")

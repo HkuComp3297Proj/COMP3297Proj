@@ -12,8 +12,8 @@ from operator import attrgetter
 @login_required(login_url='/login/')
 def view_module(request, category, course, module, identity, username):
     this_category = Category.objects.filter(name=category)
-    this_course = Course.objects.filter(name=course)
-    this_module = Module.objects.filter(name=module)
+    this_course = this_category[0].course_set.filter(name=course)
+    this_module = this_course[0].module_set.filter(name=module)
     this_user = User.objects.filter(username=username)
     if len(this_category)!=0 and len(this_course)!=0 and len(this_module)!=0 and len(this_user)!=0:
         category_list = (c.name for c in Category.objects.all())
@@ -60,9 +60,9 @@ def view_module(request, category, course, module, identity, username):
 def modify_module(request, category, course, module, username):
     identity = "Instructor"
     this_category = Category.objects.filter(name=category)
+    this_course = this_category[0].course_set.filter(name=course)
+    this_module = this_course[0].module_set.filter(name=module)
     this_user = User.objects.filter(username=username)
-    this_course = Course.objects.filter(name=course)
-    this_module = Module.objects.filter(name=module)
     opened = this_course[0].opened
     if this_user[0].username != this_course[0].instructor.username:
         return HttpResponse("Sorry! You do not have the access!")
@@ -106,9 +106,9 @@ def modify_module(request, category, course, module, username):
 def creation_template(request, category, course, module, username, component_type, form):
     identity = "Instructor"
     this_category = Category.objects.filter(name=category)
+    this_course = this_category[0].course_set.filter(name=course)
+    this_module = this_course[0].module_set.filter(name=module)
     this_user = User.objects.filter(username=username)
-    this_course = Course.objects.filter(name=course)
-    this_module = Module.objects.filter(name=module)
     if this_user[0].username != this_course[0].instructor.username:
         return HttpResponse("Sorry! You do not have the access!")
     if len(this_category)!=0 and len(this_course)!=0 and len(this_module)!=0 and len(this_user)!=0:
@@ -142,6 +142,8 @@ def create_text_component(request, category, course, module, username):
             # redirect to a new URL:
             Module.create_text_component(name=form['name'].data, module=module, sequence=int(form['sequence'].data), text_field=form['text_field'].data)
             return redirect('view_module', category=category, course=course, module=module, identity=identity, username=username)
+        else:
+            return HttpResponse("Sorry! This is not valid! Please go back!" + str(form.errors))
 
     # if a GET (or any other method) we'll create a blank form
     else:
