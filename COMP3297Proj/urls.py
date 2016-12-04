@@ -19,8 +19,7 @@ from .views import view_index, userlogin,register, userlogout
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.staticfiles import views
-from django_downloadview import ObjectDownloadView
-from sdp.models import Component_File
+
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
@@ -32,9 +31,6 @@ urlpatterns = [
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
-download_views = ObjectDownloadView.as_view(model=Component_File)
-
 urlpatterns += [
         url(r'^media/(?P<path>.*)$', views.serve),
-        #url(r'^download_views/(?P<pk>[0-9]+)/$', download_views, name='download' )
     ]
