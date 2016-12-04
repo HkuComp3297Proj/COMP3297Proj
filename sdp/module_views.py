@@ -8,7 +8,7 @@ from .models import Category, Course, User, Participant, Enrollment, Module
 from .forms import Module_form, Text_Component_form, Image_Component_form, File_Component_form, Video_Component_form
 from itertools import chain
 from operator import attrgetter
-
+from django_downloadview import ObjectDownloadView
 
 @login_required(login_url='/login/')
 def view_module(request, category, course, module, identity, username):
@@ -16,7 +16,7 @@ def view_module(request, category, course, module, identity, username):
     this_course = Course.objects.filter(name=course)
     this_module = Module.objects.filter(name=module)
     this_user = User.objects.filter(username=username)
-    if len(this_category)!=0 and len(this_course)!=0 and len(this_module) and len(this_user)!=0:
+    if len(this_category)!=0 and len(this_course)!=0 and len(this_module)!=0 and len(this_user)!=0:
         category_list = (c.name for c in Category.objects.all())
         all_component_list = sorted(chain(this_module[0].component_text_set.all(), this_module[0].component_image_set.all(), this_module[0].component_file_set.all(), this_module[0].component_video_set.all()), key=attrgetter('sequence'))
         component_list = ({'name': m.name, 'sequence': m.sequence+1, 'type': m.component_type} for m in all_component_list)
@@ -32,6 +32,24 @@ def view_module(request, category, course, module, identity, username):
         'identity_list': identity_list,
         'username': username}
         if identity == "Participant":
+            if not this_course[0].opened:
+                return HttpResponse("Sorry! There is no course called " + course + ".")
+            participant = Participant.objects.filter(username=username)[0]
+            arguments['is_enrolled'] = participant.is_enrolled()
+            arguments['is_current_enrolled'] = False
+            if arguments['is_enrolled']:
+                current_enrollment = participant.enrollment_set.filter(completion_date__isnull=True)[0]
+                if current_enrollment.course.name == course:
+                    arguments['is_current_enrolled'] = True
+                    arguments['current_progress'] = current_enrollment.module_progress + 1
+            enrolled_course = (e.course.name for e in participant.enrollment_set.filter(completion_date__isnull=False))
+            arguments['is_past_enrolled'] = False
+            for n in enrolled_course:
+                if n == course:
+                    arguments['is_past_enrolled'] = True
+                    break
+            if (not (arguments['is_past_enrolled'] or arguments['is_current_enrolled'])) or (arguments['is_current_enrolled'] and arguments['module']['sequence'] > arguments['current_progress']):
+                return HttpResponse("Sorry! You are not allowed to view this module.")
             return render(request, 'module/participant_view.html', arguments)
         elif identity == "Instructor":
             return render(request, 'module/instructor_view.html', arguments)
@@ -47,6 +65,8 @@ def modify_module(request, category, course, module, username):
     this_course = Course.objects.filter(name=course)
     this_module = Module.objects.filter(name=module)
     opened = this_course[0].opened
+    if this_user[0].username != this_course[0].instructor.username:
+        return HttpResponse("Sorry! You do not have the access!")
     if opened:
         return HttpResponse("Sorry! The course " + course + " has been opened. No modification on modules is forbidden.")
     if len(this_category)!=0 and len(this_course)!=0 and len(this_module)!=0 and len(this_user)!=0:
@@ -84,13 +104,15 @@ def modify_module(request, category, course, module, username):
 
 
 @login_required(login_url='/login/')
-def creation_template(request, category, course, module, username, component_type):
+def creation_template(request, category, course, module, username, component_type, form):
     identity = "Instructor"
     this_category = Category.objects.filter(name=category)
     this_user = User.objects.filter(username=username)
     this_course = Course.objects.filter(name=course)
     this_module = Module.objects.filter(name=module)
-    if len(this_category)!=0 and len(this_course)!=0 and len(this_user)!=0:
+    if this_user[0].username != this_course[0].instructor.username:
+        return HttpResponse("Sorry! You do not have the access!")
+    if len(this_category)!=0 and len(this_course)!=0 and len(this_module)!=0 and len(this_user)!=0:
         category_list = (c.name for c in Category.objects.all())
         identity_list = this_user[0].get_identity_list()
         identity_list.remove(identity)
@@ -124,7 +146,7 @@ def create_text_component(request, category, course, module, username):
 
     # if a GET (or any other method) we'll create a blank form
     else:
-        return creation_template(request, category, course, module, username, form = Text_Component_form())
+        return creation_template(request, category, course, module, username, component_type='Text', form = Text_Component_form())
 
 @login_required(login_url='/login/')
 def create_image_component(request, category, course, module, username):
@@ -144,7 +166,7 @@ def create_image_component(request, category, course, module, username):
 
     # if a GET (or any other method) we'll create a blank form
     else:
-        return creation_template(request, category, course, module, username, form = Image_Component_form())
+        return creation_template(request, category, course, module, username, component_type='Image', form = Image_Component_form())
 
 @login_required(login_url='/login/')
 def create_file_component(request, category, course, module, username):
@@ -164,7 +186,7 @@ def create_file_component(request, category, course, module, username):
 
     # if a GET (or any other method) we'll create a blank form
     else:
-        return creation_template(request, category, course, module, username, form = File_Component_form())
+        return creation_template(request, category, course, module, username, component_type='File', form = File_Component_form())
 
 @login_required(login_url='/login/')
 def create_video_component(request, category, course, module, username):
@@ -184,4 +206,4 @@ def create_video_component(request, category, course, module, username):
 
     # if a GET (or any other method) we'll create a blank form
     else:
-        return creation_template(request, category, course, module, username, form = Video_Component_form())
+        return creation_template(request, category, course, module, username, component_type='Video', form = Video_Component_form())

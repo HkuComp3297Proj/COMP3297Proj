@@ -5,7 +5,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from .models import Category, Course, User, Participant, Enrollment
 from .forms import Module_form
-from django.contrib.auth.decorators import login_required 
+from django.contrib.auth.decorators import login_required
 
 @login_required(login_url='/login/')
 def view_course(request, category, course, identity, username):
@@ -23,24 +23,37 @@ def view_course(request, category, course, identity, username):
         'category_list': category_list,
         'course': course,
         'open': opened,
-        'instructor':this_course[0].instructor.username,
+        'instructor': this_course[0].instructor.username,
+        'description':this_course[0].description,
         'module_list': module_list,
         'identity': identity,
         'identity_list': identity_list,
         'username': username}
         if identity == "Participant":
+            if not this_course[0].opened:
+                return HttpResponse("Sorry! There is no course called " + course + ".")
             participant = Participant.objects.filter(username=username)[0]
             arguments['is_enrolled'] = participant.is_enrolled()
+            arguments['is_current_enrolled'] = False
             if arguments['is_enrolled']:
-                arguments['enrolled_course'] = participant.enrollment_set.filter(completion_date__isnull=True)[0].course.name
-            else:
-                arguments['instructor'] = this_course[0].instructor.username
-                arguments['description'] = this_course[0].description
+                current_enrollment = participant.enrollment_set.filter(completion_date__isnull=True)[0]
+                if current_enrollment.course.name == course:
+                    arguments['is_current_enrolled'] = True
+                    arguments['current_progress'] = current_enrollment.module_progress + 1
+            enrolled_course = (e.course.name for e in participant.enrollment_set.filter(completion_date__isnull=False))
+            arguments['is_past_enrolled'] = False
+            for n in enrolled_course:
+                if n == course:
+                    arguments['is_past_enrolled'] = True
+                    break
             if request.method == 'POST':
-                if arguments['is_enrolled']:
+                if (arguments['is_current_enrolled'] or arguments['is_past_enrolled']) and ('drop' in request.POST):
                     participant.drop(course)
-                else:
+                elif 'enroll' in request.POST:
                     participant.enroll(course)
+                elif 'update_enrollment' in request.POST:
+                    participant.update_enrollment()
+                    return redirect('view_module', category=category, course=course, module=list(module_list)[arguments['current_progress']-1]['name'], identity=identity, username=username)
                 return redirect('view_course', category=category, course=course, identity=identity, username=username)
             else:
                 return render(request, 'course/participant_view.html', arguments)

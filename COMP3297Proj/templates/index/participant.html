@@ -76,7 +76,7 @@
         <div class="col-sm-3 col-md-2 sidebar">
           <ul class="nav nav-sidebar">
             {% for i in category_list%}
-            <li> <a href="{% url 'view_category' category=i identity=identity username=username %}"> {{i}} </a></li>
+            <li> <a class="nav-sidebar-text" href="{% url 'view_category' category=i identity=identity username=username %}"> {{i}} </a></li>
             {% endfor %}
           </ul>
         </div>

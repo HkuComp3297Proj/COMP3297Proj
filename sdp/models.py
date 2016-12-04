@@ -2,6 +2,7 @@ from django.db import models
 from itertools import chain
 from django.contrib.auth.models import AbstractUser
 from embed_video.fields import EmbedVideoField
+import datetime
 # Create your models here.
 
 class User(AbstractUser):
@@ -61,7 +62,7 @@ class Participant(User):
         if self.is_enrolled():
             return
         this_course = Course.objects.filter(name=course)[0]
-        enrollment = Enrollment(participant=self, course=this_course, module_progress=0, component_progress=0)
+        enrollment = Enrollment(participant=self, course=this_course, module_progress=0)
         self.current_enrollment = True
         enrollment.save()
         self.save()
@@ -72,6 +73,17 @@ class Participant(User):
         enrollment.delete()
         self.current_enrollment = False
         self.save()
+
+    def update_enrollment(self):
+        if not self.is_enrolled():
+            return
+        enrollment = self.enrollment_set.filter(completion_date__isnull=True)[0]
+        enrollment.module_progress = enrollment.module_progress + 1
+        if enrollment.module_progress == enrollment.course.number_of_module:
+            enrollment.completion_date = datetime.date.today()
+            self.current_enrollment = False
+            self.save()
+        enrollment.save()
 
 class Instructor(User):
     class Meta:
@@ -304,7 +316,7 @@ class Component_Text(Component):
     text_field = models.TextField()
 
     def modify_component(self, new_name, sequence, text_field):
-        super(Component_Text, self).save(new_name, sequence)
+        super(Component_Text, self).modify_component(new_name, sequence)
         self.text_field = text_field
         self.save()
 
@@ -315,6 +327,11 @@ class Component_Text(Component):
 class Component_Image(Component):
     image_field = models.ImageField()
 
+    def modify_component(self, new_name, sequence, image_field):
+        super(Component_Image, self).modify_component(new_name, sequence)
+        self.image_field = image_field
+        self.save()
+
     def save(self, *args, **kwargs):
         self.component_type = self.IMAGE
         super(Component_Image, self).save(*args, **kwargs)
@@ -322,12 +339,22 @@ class Component_Image(Component):
 class Component_File(Component):
     file_field = models.FileField()
 
+    def modify_component(self, new_name, sequence, file_field):
+        super(Component_File, self).modify_component(new_name, sequence)
+        self.file_field = file_field
+        self.save()
+
     def save(self, *args, **kwargs):
         self.component_type = self.FILE
         super(Component_File, self).save(*args, **kwargs)
 
 class Component_Video(Component):
     url_field = EmbedVideoField()
+
+    def modify_component(self, new_name, sequence, url_field):
+        super(Component_Video, self).modify_component(new_name, sequence)
+        self.url_field = url_field
+        self.save()
 
     def save(self, *args, **kwargs):
         self.component_type = self.VIDEO
@@ -338,4 +365,4 @@ class Enrollment(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     completion_date = models.DateField(null=True)
     module_progress = models.IntegerField(default=0)
-    component_progress = models.IntegerField(default=0)
+    # component_progress = models.IntegerField(default=0)

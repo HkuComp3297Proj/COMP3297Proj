@@ -104,6 +104,8 @@
               <button type="button" class="btn btn-success" onclick="location.href='{% url 'view_component_image' category=category course=course module=module.name component=component.name identity=identity username=username %}'">view</button>
               {% elif component.type == "F" %}
               <button type="button" class="btn btn-success" onclick="location.href='{% url 'view_component_file' category=category course=course module=module.name component=component.name identity=identity username=username %}'">download</button>
+              {% elif component.type == "V" %}
+              <button type="button" class="btn btn-success" onclick="location.href='{% url 'view_component_video' category=category course=course module=module.name component=component.name identity=identity username=username %}'">view</button>
               {% endif %}
             </div>
           </div>
