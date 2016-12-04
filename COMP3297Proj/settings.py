@@ -49,7 +49,17 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    #'django_downloadview.SmartDownloadMiddleware'
 ]
+
+'''DOWNLOADVIEW_BACKEND = 'django_downloadview.nginx.XAccelRedirectMiddleware'
+
+DOWNLOADVIEW_RULES = [
+    {
+        #'source_url': '/media/',
+        #'destination_url': '/nginx-optimized-by-middleware/',
+    },
+]'''
 
 ROOT_URLCONF = 'COMP3297Proj.urls'
 
@@ -65,6 +75,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.media',
             ],
         },
     },

@@ -53,7 +53,7 @@ def view_index(request, identity, username):    #need to handle HR and Administr
             course_list = []
             participant_list = Participant.objects.all()
             for participant in participant_list:
-                e = Enrollment.objects.filter(participant=participant)
+                e = Enrollment.objects.filter(participant=participant, completion_date__isnull=True)
                 if len(e) > 0:
                     course_list.append(e[0].course)
                 else:
@@ -78,7 +78,7 @@ def view_index(request, identity, username):    #need to handle HR and Administr
                 'identity_list': identity_list,
                 'username': username}
 
-            course = [e.course for e in Enrollment.objects.filter(participant=this_user[0])]
+            course = [e.course for e in Enrollment.objects.filter(participant=this_user[0], completion_date__isnull=True)]
             if len(course) > 0:
                 course = course[0]
                 category = course.category

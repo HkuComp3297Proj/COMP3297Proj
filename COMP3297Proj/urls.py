@@ -16,6 +16,11 @@ Including another URLconf
 from django.conf.urls import include, url
 from django.contrib import admin
 from .views import view_index, userlogin,register, userlogout
+from django.conf import settings
+from django.conf.urls.static import static
+from django.contrib.staticfiles import views
+from django_downloadview import ObjectDownloadView
+from sdp.models import Component_File
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
@@ -25,4 +30,11 @@ urlpatterns = [
     url(r'^index/(?P<identity>Participant|Instructor|HR|Administrator)/(?P<username>[A-Za-z\d_\s]+)', view_index, name='view_index'),
     url(r'^(?P<category>[A-Za-z\d_\s]+)/', include('sdp.category_urls')),
 
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+download_views = ObjectDownloadView.as_view(model=Component_File)
+
+urlpatterns += [
+        url(r'^media/(?P<path>.*)$', views.serve),
+        #url(r'^download_views/(?P<pk>[0-9]+)/$', download_views, name='download' )
+    ]

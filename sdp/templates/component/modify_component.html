@@ -97,17 +97,20 @@
               {{form.sequence}}
               <br>
               {% if type == 'Text' %}
-              New Text
+              Text
               <br>
               {{form.text_field}}
               {% elif type == 'Image' %}
-              New Image
+              Image
+              <br>
               {{form.image_field}}
               {% elif type == 'File' %}
-              New File
+              File
+              <br>
               {{form.file_field}}
               {% elif type == 'Video' %}
-              New Video
+              Video
+              <br>
               {{form.url_field}}
               {% endif %}
             </div>

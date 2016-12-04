@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect
 # Create your views here.
 
 from django.http import HttpResponse, HttpResponseRedirect
-from django.contrib.auth.decorators import login_required 
+from django.contrib.auth.decorators import login_required
 from .models import Category, User
 from .forms import Course_form
 
@@ -13,7 +13,7 @@ def view_category(request, category, identity, username):
     this_user = User.objects.filter(username=username)
     if len(this_category)!=0 and len(this_user)!=0:
         category_list = (c.name for c in Category.objects.all())
-        course_list = (c.name for c in this_category[0].course_set.all())
+        course_list = ({'name':c.name, 'opened':c.opened} for c in this_category[0].course_set.all())
         identity_list = this_user[0].get_identity_list()
         identity_list.remove(identity)
         arguments = {
