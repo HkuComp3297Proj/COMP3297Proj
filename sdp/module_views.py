@@ -8,7 +8,6 @@ from .models import Category, Course, User, Participant, Enrollment, Module
 from .forms import Module_form, Text_Component_form, Image_Component_form, File_Component_form, Video_Component_form
 from itertools import chain
 from operator import attrgetter
-from django_downloadview import ObjectDownloadView
 
 @login_required(login_url='/login/')
 def view_module(request, category, course, module, identity, username):
