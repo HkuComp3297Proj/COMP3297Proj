@@ -77,7 +77,7 @@ def create_module(request, category, course, username):
             # process the data in form.cleaned_data as required
             # ...
             # redirect to a new URL:
-            Course.create_module(name=form['name'].data, course=course, sequence=int(form['sequence'].data))
+            Course.create_module(name=form['name'].data, category=category, course=course, sequence=int(form['sequence'].data))
             return redirect('view_course', category=category, course=course, identity=identity, username=username)
         else:
             return HttpResponse("Sorry! This is not valid! Please go back!" + str(form.errors))

@@ -140,7 +140,7 @@ def create_text_component(request, category, course, module, username):
             # process the data in form.cleaned_data as required
             # ...
             # redirect to a new URL:
-            Module.create_text_component(name=form['name'].data, module=module, sequence=int(form['sequence'].data), text_field=form['text_field'].data)
+            Module.create_text_component(name=form['name'].data, category=category, course=course, module=module, sequence=int(form['sequence'].data), text_field=form['text_field'].data)
             return redirect('view_module', category=category, course=course, module=module, identity=identity, username=username)
         else:
             return HttpResponse("Sorry! This is not valid! Please go back!" + str(form.errors))
@@ -160,7 +160,7 @@ def create_image_component(request, category, course, module, username):
             # process the data in form.cleaned_data as required
             # ...
             # redirect to a new URL:
-            Module.create_image_component(name=form['name'].data, module=module, sequence=int(form['sequence'].data), image_field=form['image_field'].data)
+            Module.create_image_component(name=form['name'].data, category=category, course=course, module=module, sequence=int(form['sequence'].data), image_field=form['image_field'].data)
             return redirect('view_module', category=category, course=course, module=module, identity=identity, username=username)
         else:
             return HttpResponse("Sorry! This is not valid! Please go back!" + str(form.errors))
@@ -180,7 +180,7 @@ def create_file_component(request, category, course, module, username):
             # process the data in form.cleaned_data as required
             # ...
             # redirect to a new URL:
-            Module.create_file_component(name=form['name'].data, module=module, sequence=int(form['sequence'].data), file_field=form['file_field'].data)
+            Module.create_file_component(name=form['name'].data, category=category, course=course, module=module, sequence=int(form['sequence'].data), file_field=form['file_field'].data)
             return redirect('view_module', category=category, course=course, module=module, identity=identity, username=username)
         else:
             return HttpResponse("Sorry! This is not valid! Please go back!" + str(form.errors))
@@ -200,7 +200,7 @@ def create_video_component(request, category, course, module, username):
             # process the data in form.cleaned_data as required
             # ...
             # redirect to a new URL:
-            Module.create_video_component(name=form['name'].data, module=module, sequence=int(form['sequence'].data), url_field=form['url_field'].data)
+            Module.create_video_component(name=form['name'].data, category=category, course=course, module=module, sequence=int(form['sequence'].data), url_field=form['url_field'].data)
             return redirect('view_module', category=category, course=course, module=module, identity=identity, username=username)
         else:
             return HttpResponse("Sorry! This is not valid! Please go back!" + str(form.errors))
