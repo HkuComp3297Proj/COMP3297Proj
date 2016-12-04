@@ -8,6 +8,30 @@ from .forms import Module_form, Text_Component_form, Image_Component_form, File_
 from itertools import chain
 from operator import attrgetter
 
+def check_access (course, module, component, username):
+    this_course = Course.objects.filter(name=course)
+    this_module = Module.objects.filter(name=module)
+    this_user = User.objects.filter(username=username)
+    if not this_course[0].opened:
+        return False
+    participant = Participant.objects.filter(username=username)[0]
+    is_enrolled = participant.is_enrolled()
+    is_current_enrolled = False
+    if is_enrolled:
+        current_enrollment = participant.enrollment_set.filter(completion_date__isnull=True)[0]
+        if current_enrollment.course.name == course:
+            is_current_enrolled = True
+            current_progress = current_enrollment.module_progress + 1
+    enrolled_course = (e.course.name for e in participant.enrollment_set.filter(completion_date__isnull=False))
+    is_past_enrolled = False
+    for n in enrolled_course:
+        if n == course:
+            is_past_enrolled = True
+            break
+    if (not (is_past_enrolled or is_current_enrolled)) or (is_current_enrolled and this_module[0].sequence + 1 > current_progress):
+        return False
+    return True
+
 
 @login_required(login_url='/login/')
 def view_text(request, category, course, module, component, identity, username):
@@ -31,7 +55,10 @@ def view_text(request, category, course, module, component, identity, username):
             'username': username
         }
         if identity == "Participant":
-            return render(request, 'component/participant_view.html', arguments)
+            if check_access(course, module, component, username):
+                return render(request, 'component/participant_view.html', arguments)
+            else:
+                return HttpResponse("Sorry! You are not allowed to view this Component.")
         elif identity == "Instructor":
             return render(request, 'component/instructor_view.html', arguments)
     else:
@@ -61,7 +88,10 @@ def view_file(request, category, course, module, component, identity, username):
         }
         #return redirect('download', pk=this_component[0].pk)
         if identity == "Participant":
-            return render(request, 'component/participant_view.html', arguments)
+            if check_access(course, module, component, username):
+                return render(request, 'component/participant_view.html', arguments)
+            else:
+                return HttpResponse("Sorry! You are not allowed to view this Component.")
         elif identity == "Instructor":
             return render(request, 'component/instructor_view.html', arguments)
     else:
@@ -89,7 +119,10 @@ def view_image(request, category, course, module, component, identity, username)
             'username': username
             }
         if identity == "Participant":
-            return render(request, 'component/participant_view.html', arguments)
+            if check_access(course, module, component, username):
+                return render(request, 'component/participant_view.html', arguments)
+            else:
+                return HttpResponse("Sorry! You are not allowed to view this Component.")
         elif identity == "Instructor":
             return render(request, 'component/instructor_view.html', arguments)
     else:
@@ -117,7 +150,10 @@ def view_video(request, category, course, module, component, identity, username)
             'username': username
         }
         if identity == "Participant":
-            return render(request, 'component/participant_view.html', arguments)
+            if check_access(course, module, component, username):
+                return render(request, 'component/participant_view.html', arguments)
+            else:
+                return HttpResponse("Sorry! You are not allowed to view this Component.")
         elif identity == "Instructor":
             return render(request, 'component/instructor_view.html', arguments)
     else:
@@ -187,12 +223,15 @@ def modify_image_component(request, category, course, module, component, usernam
     if request.method == 'POST':
         # create a form instance and populate it with data from the request:
         form = Image_Component_form(request.POST, request.FILES)
+        img_to_set = form['image_field'].data
+        if img_to_set is None:
+            img_to_set = this_component[0].image_field;
         # check whether it's valid:
-        if form.is_valid():
+        if form['name'].data is not None and form['sequence'].data is not None:
             # process the data in form.cleaned_data as required
             # ...
             # redirect to a new URL:
-            this_component[0].modify_component(new_name=form['name'].data, sequence=int(form['sequence'].data), image_field=form['image_field'].data)
+            this_component[0].modify_component(new_name=form['name'].data, sequence=int(form['sequence'].data), image_field=img_to_set)
             return redirect('view_module', category=category, course=course, module=module, identity=identity, username=username)
         else:
             return HttpResponse("Sorry! This is not valid! Please go back!" + str(form.errors))
@@ -210,11 +249,14 @@ def modify_file_component(request, category, course, module, component, username
         # create a form instance and populate it with data from the request:
         form = File_Component_form(request.POST, request.FILES)
         # check whether it's valid:
-        if form.is_valid():
+        file_to_set = form['file_field'].data
+        if file_to_set is None:
+            file_to_set = this_component[0].file_field
+        if form['name'].data is not None and form['sequence'].data is not None:
             # process the data in form.cleaned_data as required
             # ...
             # redirect to a new URL:
-            this_component[0].modify_component(new_name=form['name'].data, sequence=int(form['sequence'].data), file_field=form['file_field'].data)
+            this_component[0].modify_component(new_name=form['name'].data, sequence=int(form['sequence'].data), file_field=file_to_set)
             return redirect('view_module', category=category, course=course, module=module, identity=identity, username=username)
         else:
             return HttpResponse("Sorry! This is not valid! Please go back!" + str(form.errors))
@@ -232,11 +274,11 @@ def modify_video_component(request, category, course, module, component, usernam
         # create a form instance and populate it with data from the request:
         form = Video_Component_form(request.POST)
         # check whether it's valid:
-        if form.is_valid():
+        if form['name'].data is not None and form['sequence'].data is not None:
             # process the data in form.cleaned_data as required
             # ...
             # redirect to a new URL:
-            this_component[0].modify_component(new_name=form['name'].data, module=module, sequence=int(form['sequence'].data), url_field=form['url_field'].data)
+            this_component[0].modify_component(new_name=form['name'].data, sequence=int(form['sequence'].data), url_field=form['url_field'].data)
             return redirect('view_module', category=category, course=course, module=module, identity=identity, username=username)
         else:
             return HttpResponse("Sorry! This is not valid! Please go back!" + str(form.errors))
