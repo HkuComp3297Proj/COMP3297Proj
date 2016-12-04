@@ -130,7 +130,15 @@ def modification_template(request, category, course, module, username, component
     this_user = User.objects.filter(username=username)
     this_course = Course.objects.filter(name=course)
     this_module = Module.objects.filter(name=module)
-    this_component = Component_Image.objects.filter(name=component)
+    this_component = []
+    if component_type == "Text":
+        this_component = Component_Text.objects.filter(name=component)
+    elif component_type == "Image":
+        this_component = Component_Image.objects.filter(name=component)
+    elif component_type == "File":
+        this_component = Component_File.objects.filter(name=component)
+    elif component_type == "Video":
+        this_component = Component_Video.objects.filter(name=component)
     if this_user[0].username != this_course[0].instructor.username:
         return HttpResponse("Sorry! You do not have the access!")
     if len(this_category)!=0 and len(this_course)!=0 and len(this_module)!=0 and len(this_component)!=0 and len(this_user)!=0:
@@ -150,7 +158,7 @@ def modification_template(request, category, course, module, username, component
         'type': component_type}
         return render(request, 'component/modify_component.html', arguments)
     else:
-        return HttpResponse("Sorry! There is no component called " + course + ".")
+        return HttpResponse("Sorry! There is no component called " + component + ".")
 
 @login_required(login_url='/login/')
 def modify_text_component(request, category, course, module, component, username):
@@ -235,7 +243,7 @@ def modify_video_component(request, category, course, module, component, usernam
 
     # if a GET (or any other method) we'll create a blank form
     else:
-        form = Video_Component_form(initial={'name': this_component[0].name, 'sequence': this_component[0].sequence + 1, 'video_field': this_component[0].video_field})
+        form = Video_Component_form(initial={'name': this_component[0].name, 'sequence': this_component[0].sequence + 1, 'url_field': this_component[0].url_field})
         return modification_template(request, category, course, module, username, component, component_type='Video', form = form)
 
 @login_required(login_url='/login/')
