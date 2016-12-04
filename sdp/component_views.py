@@ -249,11 +249,14 @@ def modify_file_component(request, category, course, module, component, username
         # create a form instance and populate it with data from the request:
         form = File_Component_form(request.POST, request.FILES)
         # check whether it's valid:
+        file_to_set = form['file_field'].data
+        if file_to_set is None:
+            file_to_set = this_component[0].file_field
         if form['name'].data is not None and form['sequence'].data is not None:
             # process the data in form.cleaned_data as required
             # ...
             # redirect to a new URL:
-            this_component[0].modify_component(new_name=form['name'].data, sequence=int(form['sequence'].data), file_field=form['file_field'].data)
+            this_component[0].modify_component(new_name=form['name'].data, sequence=int(form['sequence'].data), file_field=file_to_set)
             return redirect('view_module', category=category, course=course, module=module, identity=identity, username=username)
         else:
             return HttpResponse("Sorry! This is not valid! Please go back!" + str(form.errors))
