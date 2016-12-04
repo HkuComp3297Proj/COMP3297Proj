@@ -8,9 +8,10 @@ from .forms import Module_form, Text_Component_form, Image_Component_form, File_
 from itertools import chain
 from operator import attrgetter
 
-def check_access (course, module, component, username):
-    this_course = Course.objects.filter(name=course)
-    this_module = Module.objects.filter(name=module)
+def check_access(category, course, module, component, username):
+    this_category = Category.objects.filter(name=category)
+    this_course = this_category[0].course_set.filter(name=course)
+    this_module = this_course[0].module_set.filter(name=module)
     this_user = User.objects.filter(username=username)
     if not this_course[0].opened:
         return False
@@ -36,10 +37,10 @@ def check_access (course, module, component, username):
 @login_required(login_url='/login/')
 def view_text(request, category, course, module, component, identity, username):
     this_category = Category.objects.filter(name=category)
-    this_course = Course.objects.filter(name=course)
-    this_module = Module.objects.filter(name=module)
+    this_course = this_category[0].course_set.filter(name=course)
+    this_module = this_course[0].module_set.filter(name=module)
+    this_component = this_module[0].component_text_set.filter(name=component)
     this_user = User.objects.filter(username=username)
-    this_component = Component_Text.objects.filter(name=component)
     if len(this_category)!=0 and len(this_course)!=0 and len(this_module)!=0 and len(component)!=0 and len(this_user)!=0:
         category_list = (c.name for c in Category.objects.all())
         identity_list = this_user[0].get_identity_list()
@@ -55,7 +56,7 @@ def view_text(request, category, course, module, component, identity, username):
             'username': username
         }
         if identity == "Participant":
-            if check_access(course, module, component, username):
+            if check_access(category, course, module, component, username):
                 return render(request, 'component/participant_view.html', arguments)
             else:
                 return HttpResponse("Sorry! You are not allowed to view this Component.")
@@ -68,9 +69,9 @@ def view_text(request, category, course, module, component, identity, username):
 @login_required(login_url='/login/')
 def view_file(request, category, course, module, component, identity, username):
     this_category = Category.objects.filter(name=category)
-    this_course = Course.objects.filter(name=course)
-    this_module = Module.objects.filter(name=module)
-    this_component = Component_File.objects.filter(name=component)
+    this_course = this_category[0].course_set.filter(name=course)
+    this_module = this_course[0].module_set.filter(name=module)
+    this_component = this_module[0].component_file_set.filter(name=component)
     this_user = User.objects.filter(username=username)
     if len(this_category)!=0 and len(this_course)!=0 and len(this_module)!=0 and len(this_component)!=0 and len(this_user)!=0:
         category_list = (c.name for c in Category.objects.all())
@@ -88,7 +89,7 @@ def view_file(request, category, course, module, component, identity, username):
         }
         #return redirect('download', pk=this_component[0].pk)
         if identity == "Participant":
-            if check_access(course, module, component, username):
+            if check_access(category, course, module, component, username):
                 return render(request, 'component/participant_view.html', arguments)
             else:
                 return HttpResponse("Sorry! You are not allowed to view this Component.")
@@ -100,9 +101,9 @@ def view_file(request, category, course, module, component, identity, username):
 @login_required(login_url='/login/')
 def view_image(request, category, course, module, component, identity, username):
     this_category = Category.objects.filter(name=category)
-    this_course = Course.objects.filter(name=course)
-    this_module = Module.objects.filter(name=module)
-    this_component = Component_Image.objects.filter(name=component)
+    this_course = this_category[0].course_set.filter(name=course)
+    this_module = this_course[0].module_set.filter(name=module)
+    this_component = this_module[0].component_image_set.filter(name=component)
     this_user = User.objects.filter(username=username)
     if len(this_category)!=0 and len(this_course)!=0 and len(this_module)!=0 and len(this_component)!=0 and len(this_user)!=0:
         category_list = (c.name for c in Category.objects.all())
@@ -119,7 +120,7 @@ def view_image(request, category, course, module, component, identity, username)
             'username': username
             }
         if identity == "Participant":
-            if check_access(course, module, component, username):
+            if check_access(category, course, module, component, username):
                 return render(request, 'component/participant_view.html', arguments)
             else:
                 return HttpResponse("Sorry! You are not allowed to view this Component.")
@@ -131,9 +132,9 @@ def view_image(request, category, course, module, component, identity, username)
 @login_required(login_url='/login/')
 def view_video(request, category, course, module, component, identity, username):
     this_category = Category.objects.filter(name=category)
-    this_course = Course.objects.filter(name=course)
-    this_module = Module.objects.filter(name=module)
-    this_component = Component_Video.objects.filter(name=component)
+    this_course = this_category[0].course_set.filter(name=course)
+    this_module = this_course[0].module_set.filter(name=module)
+    this_component = this_module[0].component_video_set.filter(name=component)
     this_user = User.objects.filter(username=username)
     if len(this_category)!=0 and len(this_course)!=0 and len(this_module)!=0 and len(this_component)!=0 and len(this_user)!=0:
         category_list = (c.name for c in Category.objects.all())
@@ -150,7 +151,7 @@ def view_video(request, category, course, module, component, identity, username)
             'username': username
         }
         if identity == "Participant":
-            if check_access(course, module, component, username):
+            if check_access(category, course, module, component, username):
                 return render(request, 'component/participant_view.html', arguments)
             else:
                 return HttpResponse("Sorry! You are not allowed to view this Component.")
@@ -163,18 +164,18 @@ def view_video(request, category, course, module, component, identity, username)
 def modification_template(request, category, course, module, username, component, component_type, form):
     identity = "Instructor"
     this_category = Category.objects.filter(name=category)
+    this_course = this_category[0].course_set.filter(name=course)
+    this_module = this_course[0].module_set.filter(name=module)
     this_user = User.objects.filter(username=username)
-    this_course = Course.objects.filter(name=course)
-    this_module = Module.objects.filter(name=module)
     this_component = []
     if component_type == "Text":
-        this_component = Component_Text.objects.filter(name=component)
+        this_component = this_module[0].component_text_set.filter(name=component)
     elif component_type == "Image":
-        this_component = Component_Image.objects.filter(name=component)
+        this_component = this_module[0].component_image_set.filter(name=component)
     elif component_type == "File":
-        this_component = Component_File.objects.filter(name=component)
+        this_component = this_module[0].component_file_set.filter(name=component)
     elif component_type == "Video":
-        this_component = Component_Video.objects.filter(name=component)
+        this_component = this_module[0].component_video_set.filter(name=component)
     if this_user[0].username != this_course[0].instructor.username:
         return HttpResponse("Sorry! You do not have the access!")
     if len(this_category)!=0 and len(this_course)!=0 and len(this_module)!=0 and len(this_component)!=0 and len(this_user)!=0:
@@ -199,7 +200,10 @@ def modification_template(request, category, course, module, username, component
 @login_required(login_url='/login/')
 def modify_text_component(request, category, course, module, component, username):
     identity = "Instructor"
-    this_component = Component_Text.objects.filter(name=component)
+    this_category = Category.objects.filter(name=category)
+    this_course = this_category[0].course_set.filter(name=course)
+    this_module = this_course[0].module_set.filter(name=module)
+    this_component = this_module[0].component_text_set.filter(name=component)
     if request.method == 'POST':
         # create a form instance and populate it with data from the request:
         form = Text_Component_form(request.POST)
@@ -219,7 +223,10 @@ def modify_text_component(request, category, course, module, component, username
 @login_required(login_url='/login/')
 def modify_image_component(request, category, course, module, component, username):
     identity = "Instructor"
-    this_component = Component_Image.objects.filter(name=component)
+    this_category = Category.objects.filter(name=category)
+    this_course = this_category[0].course_set.filter(name=course)
+    this_module = this_course[0].module_set.filter(name=module)
+    this_component = this_module[0].component_image_set.filter(name=component)
     if request.method == 'POST':
         # create a form instance and populate it with data from the request:
         form = Image_Component_form(request.POST, request.FILES)
@@ -244,7 +251,10 @@ def modify_image_component(request, category, course, module, component, usernam
 @login_required(login_url='/login/')
 def modify_file_component(request, category, course, module, component, username):
     identity = "Instructor"
-    this_component = Component_File.objects.filter(name=component)
+    this_category = Category.objects.filter(name=category)
+    this_course = this_category[0].course_set.filter(name=course)
+    this_module = this_course[0].module_set.filter(name=module)
+    this_component = this_module[0].component_file_set.filter(name=component)
     if request.method == 'POST':
         # create a form instance and populate it with data from the request:
         form = File_Component_form(request.POST, request.FILES)
@@ -269,7 +279,10 @@ def modify_file_component(request, category, course, module, component, username
 @login_required(login_url='/login/')
 def modify_video_component(request, category, course, module, component, username):
     identity = "Instructor"
-    this_component = Component_Video.objects.filter(name=component)
+    this_category = Category.objects.filter(name=category)
+    this_course = this_category[0].course_set.filter(name=course)
+    this_module = this_course[0].module_set.filter(name=module)
+    this_component = this_module[0].component_video_set.filter(name=component)
     if request.method == 'POST':
         # create a form instance and populate it with data from the request:
         form = Video_Component_form(request.POST)

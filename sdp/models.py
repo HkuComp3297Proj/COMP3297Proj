@@ -154,8 +154,9 @@ class Course(models.Model):
         return self.name
 
     @classmethod
-    def create_module(cls, name, course, sequence):
-        this_course = Course.objects.filter(name=course)[0]
+    def create_module(cls, name, category, course, sequence):
+        this_category = Category.objects.filter(name=category)
+        this_course = this_category[0].course_set.filter(name=course)[0]
         module = Module(name=name, number_of_component=0, course=this_course, sequence=this_course.number_of_module)
         module.save()
         if sequence - 1 < this_course.number_of_module:
@@ -179,32 +180,40 @@ class Module(models.Model):
         return self.name
 
     @classmethod
-    def create_text_component(self, name, module, sequence, text_field):
-        this_module = Module.objects.filter(name=module)[0]
+    def create_text_component(self, name, category, course, module, sequence, text_field):
+        this_category = Category.objects.filter(name=category)
+        this_course = this_category[0].course_set.filter(name=course)
+        this_module = this_course[0].module_set.filter(name=module)[0]
         component = Component_Text(name=name, module=this_module, sequence=this_module.number_of_component, text_field=text_field)
         component.save()
         if sequence - 1 < this_module.number_of_component:
             component.insert_component(sequence)
 
     @classmethod
-    def create_image_component(self, name, module, sequence, image_field):
-        this_module = Module.objects.filter(name=module)[0]
+    def create_image_component(self, name, category, course, module, sequence, image_field):
+        this_category = Category.objects.filter(name=category)
+        this_course = this_category[0].course_set.filter(name=course)
+        this_module = this_course[0].module_set.filter(name=module)[0]
         component = Component_Image(name=name, module=this_module, sequence=this_module.number_of_component, image_field=image_field)
         component.save()
         if sequence - 1 < this_module.number_of_component:
             component.insert_component(sequence)
 
     @classmethod
-    def create_file_component(self, name, module, sequence, file_field):
-        this_module = Module.objects.filter(name=module)[0]
+    def create_file_component(self, name, category, course, module, sequence, file_field):
+        this_category = Category.objects.filter(name=category)
+        this_course = this_category[0].course_set.filter(name=course)
+        this_module = this_course[0].module_set.filter(name=module)[0]
         component = Component_File(name=name, module=this_module, sequence=this_module.number_of_component, file_field=file_field)
         component.save()
         if sequence - 1 < this_module.number_of_component:
             component.insert_component(sequence)
 
     @classmethod
-    def create_video_component(self, name, module, sequence, url_field):
-        this_module = Module.objects.filter(name=module)[0]
+    def create_video_component(self, name, category, course, module, sequence, url_field):
+        this_category = Category.objects.filter(name=category)
+        this_course = this_category[0].course_set.filter(name=course)
+        this_module = this_course[0].module_set.filter(name=module)[0]
         component = Component_Video(name=name, module=this_module, sequence=this_module.number_of_component, url_field=url_field)
         component.save()
         if sequence - 1 < this_module.number_of_component:
@@ -293,7 +302,7 @@ class Component(models.Model):
         self.insert_component(sequence)
 
     def insert_component(self, future_seq):
-        if future_seq==self.sequence:
+        if future_seq - 1 ==self.sequence:
             self.save()
             return
         past_seq = self.sequence
