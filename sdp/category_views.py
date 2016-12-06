@@ -9,26 +9,29 @@ from .forms import Course_form
 
 @login_required(login_url='/login/')
 def view_category(request, category, identity, username):
-    this_category = Category.objects.filter(name=category)
-    this_user = User.objects.filter(username=username)
-    if len(this_category)!=0 and len(this_user)!=0:
-        category_list = (c.name for c in Category.objects.all())
-        course_list = ({'name':c.name, 'opened':c.opened} for c in this_category[0].course_set.all())
-        identity_list = this_user[0].get_identity_list()
-        identity_list.remove(identity)
-        arguments = {
-        'category': category,
-        'category_list': category_list,
-        'course_list': course_list,
-        'identity': identity,
-        'identity_list': identity_list,
-        'username': username}
-        if identity == "Participant":
-            return render(request, 'category/participant_view.html', arguments)
-        elif identity == "Instructor":
-            return render(request, 'category/instructor_view.html', arguments)
+    if request.user.username!=username:
+        return HttpResponse("Sorry! You don't have access to this page!")
     else:
-        return HttpResponse("Sorry! There is no category called " + category + ".")
+        this_category = Category.objects.filter(name=category)
+        this_user = User.objects.filter(username=username)
+        if len(this_category)!=0 and len(this_user)!=0:
+            category_list = (c.name for c in Category.objects.all())
+            course_list = ({'name':c.name, 'opened':c.opened} for c in this_category[0].course_set.all())
+            identity_list = this_user[0].get_identity_list()
+            identity_list.remove(identity)
+            arguments = {
+            'category': category,
+            'category_list': category_list,
+            'course_list': course_list,
+            'identity': identity,
+            'identity_list': identity_list,
+            'username': username}
+            if identity == "Participant":
+                return render(request, 'category/participant_view.html', arguments)
+            elif identity == "Instructor":
+                return render(request, 'category/instructor_view.html', arguments)
+        else:
+            return HttpResponse("Sorry! There is no category called " + category + ".")
 
 def create_course(request, category, username):
     identity = "Instructor"
