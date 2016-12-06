@@ -54,9 +54,6 @@ def view_course(request, category, course, identity, username):
                         participant.drop(course)
                     elif 'enroll' in request.POST:
                         participant.enroll(course)
-                    elif 'update_enrollment' in request.POST:
-                        participant.update_enrollment()
-                        return redirect('view_module', category=category, course=course, module=list(module_list)[arguments['current_progress']-1]['name'], identity=identity, username=username)
                     return redirect('view_course', category=category, course=course, identity=identity, username=username)
                 else:
                     return render(request, 'course/participant_view.html', arguments)

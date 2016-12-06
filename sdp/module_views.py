@@ -43,14 +43,32 @@ def view_module(request, category, course, module, identity, username):
                     current_enrollment = participant.enrollment_set.filter(completion_date__isnull=True)[0]
                     if current_enrollment.course.name == course:
                         arguments['is_current_enrolled'] = True
-                        arguments['current_progress'] = current_enrollment.module_progress + 1
+                        arguments['module_progress'] = current_enrollment.module_progress + 1
+                        arguments['current_progress'] = current_enrollment.component_progress + 1
+                        arguments['module_compeleted'] = current_enrollment.module_progress > this_module[0].sequence
                 enrolled_course = (e.course.name for e in participant.enrollment_set.filter(completion_date__isnull=False))
                 arguments['is_past_enrolled'] = False
                 for n in enrolled_course:
                     if n == course:
                         arguments['is_past_enrolled'] = True
                         break
-                if (not (arguments['is_past_enrolled'] or arguments['is_current_enrolled'])) or (arguments['is_current_enrolled'] and arguments['module']['sequence'] > arguments['current_progress']):
+                if this_module[0].number_of_component == 0:
+                    print("\n\nDEBUG\n\n")
+                    participant.update_enrollment(module)
+                if request.method == 'POST':
+                    if 'text' in request.POST:
+                        participant.update_enrollment(module)
+                        return redirect('view_component_text', category=category, course=course, module=module, component=list(component_list)[arguments['current_progress']-1]['name'], identity=identity, username=username)
+                    elif 'image' in request.POST:
+                        participant.update_enrollment(module)
+                        return redirect('view_component_image', category=category, course=course, module=module, component=list(component_list)[arguments['current_progress']-1]['name'], identity=identity, username=username)
+                    elif 'file' in request.POST:
+                        participant.update_enrollment(module)
+                        return redirect('view_component_file', category=category, course=course, module=module, component=list(component_list)[arguments['current_progress']-1]['name'], identity=identity, username=username)
+                    elif 'video' in request.POST:
+                        participant.update_enrollment(module)
+                        return redirect('view_component_video', category=category, course=course, module=module, component=list(component_list)[arguments['current_progress']-1]['name'], identity=identity, username=username)
+                if (not (arguments['is_past_enrolled'] or arguments['is_current_enrolled'])) or (arguments['is_current_enrolled'] and (arguments['module']['sequence'] > arguments['module_progress'])):
                     return HttpResponse("Sorry! You are not allowed to view this module.")
                 return render(request, 'module/participant_view.html', arguments)
             elif identity == "Instructor":

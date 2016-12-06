@@ -32,7 +32,7 @@ def view_category(request, category, identity, username):
                 return render(request, 'category/instructor_view.html', arguments)
         else:
             return HttpResponse("Sorry! There is no category called " + category + ".")
-
+@login_required(login_url='/login/')
 def create_course(request, category, username):
     identity = "Instructor"
     if request.method == 'POST':

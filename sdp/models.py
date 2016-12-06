@@ -62,7 +62,7 @@ class Participant(User):
         if self.is_enrolled():
             return
         this_course = Course.objects.filter(name=course)[0]
-        enrollment = Enrollment(participant=self, course=this_course, module_progress=0)
+        enrollment = Enrollment(participant=self, course=this_course, module_progress=0, component_progress=0)
         self.current_enrollment = True
         enrollment.save()
         self.save()
@@ -74,12 +74,16 @@ class Participant(User):
         self.current_enrollment = False
         self.save()
 
-    def update_enrollment(self):
+    def update_enrollment(self, module):
+        print ("entered update enrollment")
         if not self.is_enrolled():
             return
         enrollment = self.enrollment_set.filter(completion_date__isnull=True)[0]
-        enrollment.module_progress = enrollment.module_progress + 1
-        if enrollment.module_progress == enrollment.course.number_of_module:
+        enrollment.component_progress = enrollment.component_progress + 1
+        if enrollment.component_progress >= enrollment.course.module_set.filter(name=module)[0].number_of_component:
+            enrollment.module_progress = enrollment.module_progress + 1
+            enrollment.component_progress = 0
+        if enrollment.module_progress >= enrollment.course.number_of_module:
             enrollment.completion_date = datetime.date.today()
             self.current_enrollment = False
             self.save()
@@ -374,4 +378,4 @@ class Enrollment(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     completion_date = models.DateField(null=True)
     module_progress = models.IntegerField(default=0)
-    # component_progress = models.IntegerField(default=0)
+    component_progress = models.IntegerField(default=0)

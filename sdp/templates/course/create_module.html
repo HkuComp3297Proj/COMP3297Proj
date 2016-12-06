@@ -96,7 +96,7 @@
               {{form.sequence.label_tag}}
               {{form.sequence}}
             </div>
-            <input type="submit" class="btn btn-success" value="Submit" />
+            <input type="submit" onclick="this.disabled=true; this.form.submit();" class="btn btn-success" value="Submit" />
           </form>
         </div>
       </div>

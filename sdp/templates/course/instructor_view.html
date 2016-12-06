@@ -92,7 +92,7 @@
               {% else %}
               <form method="post">
                 {% csrf_token %}
-                <input type="submit" class="btn btn-success" value="Open" />
+                <input type="submit" onclick="this.disabled=true; this.form.submit();" class="btn btn-success" value="Open" />
               </form>
               {% endif %}
             </div>

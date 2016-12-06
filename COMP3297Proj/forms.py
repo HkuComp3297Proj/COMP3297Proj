@@ -3,6 +3,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import authenticate
 from sdp.models import User 
 from django import forms
+import re
 
 # If you don't do this you cannot use Bootstrap CSS
 class Login_form(AuthenticationForm):
@@ -53,6 +54,8 @@ class Register_form(forms.ModelForm):
 			raise forms.ValidationError("Please enter your 8-digit username.")
 		elif password1 and password2 and password1 != password2:
 			raise forms.ValidationError("Passwords don't match")
+		elif re.search("[~\!@#\$%\^&\*\(\)_\+{}\":;'\[\]]", username):
+			raise forms.ValidationError("Sorry!Username can't contain special characters.")
 		return self.cleaned_data
 
 	def save(self, commit=True):

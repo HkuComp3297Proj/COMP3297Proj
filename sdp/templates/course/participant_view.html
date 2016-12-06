@@ -123,15 +123,10 @@
                 <div class="col-xs-10 col-sm-10 placeholder text-left">
                   <h3 class="page-header">Module {{module.sequence}}: {{module.name}}</h3>
                 </div>
-                {% if module.sequence < current_progress %}
+                {% if module.sequence <= current_progress %}
                 <div class="col-xs-2 col-sm-2 placeholder">
                   <button type="button" class="btn btn-success" onclick="location.href='{% url 'view_module' category=category course=course module=module.name identity=identity username=username %}'">access</button>
                 </div>
-                {% elif module.sequence == current_progress %}
-                <form method="post">
-                  {% csrf_token %}
-                  <input type="submit" name="update_enrollment" class="btn btn-success" value="access" />
-                </form>
                 {% else %}
                 <div class="col-xs-2 col-sm-2 placeholder">
                   <button type="button" class="btn btn-success disabled">access</button>
